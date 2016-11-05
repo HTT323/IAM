@@ -30,6 +30,8 @@ namespace Iam.Web
             AntiForgeryConfig.UniqueClaimTypeIdentifier = Constants.ClaimTypes.Subject;
             JwtSecurityTokenHandler.InboundClaimTypeMap = new Dictionary<string, string>();
 
+            app.UseMigrations(AppSettings.IamConnectionString);
+
             app.Map(AppSettings.IdentityServerPath, ids =>
             {
                 ids.UseIdentityServer(new IdentityServerOptions
