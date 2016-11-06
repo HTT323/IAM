@@ -2,12 +2,10 @@
 
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Optimization;
 using System.Web.Routing;
 using Autofac;
 using Autofac.Integration.Mvc;
 using AutofacSerilogIntegration;
-using Iam.Web.Controllers;
 using JetBrains.Annotations;
 using Serilog;
 
@@ -32,8 +30,6 @@ namespace Iam.Web
             builder.RegisterLogger();
 
             #region Dependencies
-
-
 
             #endregion
 

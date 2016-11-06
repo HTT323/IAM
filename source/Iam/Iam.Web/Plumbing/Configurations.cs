@@ -3,6 +3,7 @@
 using System.Data.Entity;
 using Iam.Identity;
 using Iam.Web.Migrations.Users;
+using Iam.Web.Services;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
 using IdentityServer3.EntityFramework;
@@ -16,6 +17,12 @@ namespace Iam.Web.Plumbing
     [UsedImplicitly]
     public static class Configurations
     {
+        /// <summary>
+        ///     Enable migrations.
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         public static IAppBuilder UseMigrations(this IAppBuilder app, string connectionString)
         {
             Database.SetInitializer(
@@ -24,10 +31,18 @@ namespace Iam.Web.Plumbing
             return app;
         }
 
+        /// <summary>
+        ///     Configure ID Server to use a custom view service, EF and ASP.NET Identity.
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <param name="connectionString"></param>
+        /// <returns></returns>
         public static IdentityServerServiceFactory Configure(
             this IdentityServerServiceFactory factory,
             string connectionString)
         {
+            factory.ViewService = new Registration<IViewService, CustomViewService>();
+
             return factory.RegisterIdentityServices(connectionString).RegisterUserServices(connectionString);
         }
 
