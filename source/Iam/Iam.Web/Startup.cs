@@ -53,16 +53,15 @@ namespace Iam.Web
         }
 
         /// <summary>
-        /// Configure Identity and Access Management.
+        ///     Configure Identity and Access Management.
         /// </summary>
         /// <param name="app"></param>
         private void ConfigureIam(IAppBuilder app)
         {
-            
         }
 
         /// <summary>
-        /// Load certificate using subject distinguished name.
+        ///     Load certificate using subject distinguished name.
         /// </summary>
         /// <returns></returns>
         private X509Certificate2 LoadCertificate()

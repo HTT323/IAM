@@ -1,17 +1,16 @@
 ﻿#region
 
-using System;
 using System.Web.Mvc;
 
 #endregion
 
 namespace Iam.Web.Controllers
 {
-    public class HomeController : AbstractController
+    public class HomeController : Controller
     {
         public ActionResult Index()
         {
-            throw new NotImplementedException();
+            return View();
         }
     }
 }

@@ -293,7 +293,6 @@
     <Folder Include="App_Data\" />
     <Folder Include="Content\app\" />
     <Folder Include="Models\" />
-    <Folder Include="Views\Abstract\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

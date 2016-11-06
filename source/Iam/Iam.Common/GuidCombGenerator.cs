@@ -7,7 +7,7 @@ using System;
 namespace Iam.Common
 {
     /// <summary>
-    /// Based on the NHibernate Guid generator.
+    ///     Based on the NHibernate Guid generator.
     /// </summary>
     public static class GuidCombGenerator
     {
