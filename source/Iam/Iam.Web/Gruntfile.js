@@ -5,16 +5,21 @@ module.exports = function (grunt) {
         concat: {
             css: {
                 src: [
-                    "lib/bootstrap/dist/css/bootstrap.min.css"
+                    "lib/bootstrap/dist/css/bootstrap.min.css",
+                    "lib/components-font-awesome/css/font-awesome.min.css"
                 ],
                 dest: "content/styles.min.css"
             },
             js: {
+                options: {
+                    separator: ";"
+                },
                 src: [
                     "lib/jquery/dist/jquery.min.js",
                     "lib/bootstrap/dist/js/bootstrap.min.js",
                     "lib/angularjs/angular.min.js",
-                    "lib/underscore/underscore.min.js"
+                    "lib/underscore/underscore.min.js",
+                    "scripts/encoder.min.js"
                 ],
                 dest: "scripts/scripts.min.js"
             }
@@ -22,7 +27,7 @@ module.exports = function (grunt) {
         copy: {
             fonts: {
                 expand: true,
-                cwd: "lib/bootstrap/fonts/",
+                cwd: "lib/components-font-awesome/fonts/",
                 src: "*",
                 dest: "fonts/"
             }

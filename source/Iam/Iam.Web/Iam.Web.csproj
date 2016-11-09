@@ -257,23 +257,29 @@
       <DependentUpon>201611051355232_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Users\UserMigration.cs" />
-    <Compile Include="Plumbing\Configurations.cs" />
+    <Compile Include="Services\Configurations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CustomViewService.cs" />
+    <Compile Include="Services\HttpCache.cs" />
+    <Compile Include="Services\NoCache.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CustomViews\login.html" />
     <Content Include="Content\styles.min.css" />
     <Content Include="favicon.ico" />
-    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\site.css" />
     <Content Include="bower.json" />
     <Content Include=".bowerrc" />
     <Content Include="Gruntfile.js" />
+    <Content Include="Scripts\idsapp.min.js" />
     <Content Include="Scripts\scripts.min.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -291,7 +297,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Content\app\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
@@ -316,10 +321,17 @@
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\fontawesome-webfont.eot" />
+    <Content Include="fonts\fontawesome-webfont.ttf" />
+    <Content Include="fonts\fontawesome-webfont.woff" />
+    <Content Include="fonts\fontawesome-webfont.woff2" />
+    <Content Include="fonts\FontAwesome.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\encoder.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CustomViews\Web.config" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

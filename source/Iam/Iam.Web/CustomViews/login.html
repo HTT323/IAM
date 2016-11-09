@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html ng-app="app" ng-controller="LayoutCtrl">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{siteName}</title>
+    <link href="/content/styles.min.css" rel="stylesheet" />
+    <link href="/content/site.css" rel="stylesheet">
+</head>
+<body lang="en">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
+                <h3 class="signin-logo">
+                    <i class="fa fa-user-circle fa-2x"></i>
+                </h3>
+                <h3 class="signin">
+                    Sign in to JLT Bridges
+                    <span ng-show="clientName">to {clientName}</span>
+                </h3>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="container" ng-cloak>
+
+        <div class="row" ng-show="model.errorMessage">
+            <div class="col-md-12 col-sm-12">
+                <div class="alert alert-danger">
+                    <strong>Error:</strong>
+                    {{model.errorMessage}}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3" ng-show="model.loginUrl">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form name="form" method="post" action="{{model.loginUrl}}">
+                            <anti-forgery-token token="model.antiForgery"></anti-forgery-token>
+                            <fieldset>
+                                <div class="form-group">
+                                    <label for="username">Username or email address</label>
+                                    <input required name="username" autofocus id="username" type="text" class="form-control" ng-model="model.username" maxlength="100">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Password</label>
+                                    <input required id="password" name="password" type="password" class="form-control" ng-model="model.password" maxlength="100" autocomplete="off">
+                                </div>
+                                <div class="form-group login-remember" ng-show="model.allowRememberMe">
+                                    <label for="rememberMe">
+                                        <input type="checkbox" id="rememberMe" name="rememberMe" ng-model="model.rememberMe" value="true">
+                                        <span class="font-small">Remember Me</span>
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-success btn-block" ng-disabled="form.$invalid">Sign In</button>
+                                </div>
+                                <hr />
+                                <a class="font-small" href="#">Forgot Password?</a>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <ul class="list-unstyled">
+                        <li ng-repeat="link in model.additionalLinks"><a ng-href="{{link.href}}">{{link.text}}</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="hidden col-md-6 col-sm-6 external-providers" ng-show="model.externalProviders">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">External Login</h3>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-inline">
+                            <li ng-repeat="provider in model.externalProviders">
+                                <a class="btn btn-default" href="{{provider.href}}">{{provider.text}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="modelJson" type="application/json">
+        {model}
+    </script>
+    <script src="/scripts/scripts.min.js"></script>
+    <script src="/scripts/idsapp.min.js"></script>
+</body>
+</html>
+

@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Web.Helpers;
 using Iam.Common;
 using Iam.Web;
-using Iam.Web.Plumbing;
+using Iam.Web.Services;
 using IdentityModel;
 using IdentityServer3.Core;
 using IdentityServer3.Core.Configuration;

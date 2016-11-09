@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using Iam.Common.Contracts;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using IdentityServer3.Core.Validation;
@@ -24,11 +25,14 @@ namespace Iam.Web.Services
     [UsedImplicitly]
     public class CustomViewService : IViewService
     {
+        private const string CacheKeyFormat = "8CDA3BF1-4C73-406D-9C2E-16F56357C6B0-{0}";
+        private readonly ICache _cache;
         private readonly IClientStore _clientStore;
 
-        public CustomViewService(IClientStore clientStore)
+        public CustomViewService(IClientStore clientStore, ICache cache)
         {
             _clientStore = clientStore;
+            _cache = cache;
         }
 
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
@@ -64,7 +68,7 @@ namespace Iam.Web.Services
             return Render(model, "error");
         }
 
-        private static Task<Stream> Render(CommonViewModel model, string page, string clientName = null)
+        private Task<Stream> Render(CommonViewModel model, string page, string clientName = null)
         {
             var json =
                 JsonConvert.SerializeObject(
@@ -84,13 +88,23 @@ namespace Iam.Web.Services
             return Task.FromResult(StringToStream(html));
         }
 
-        private static string LoadHtml(string name)
+        private string LoadHtml(string name)
         {
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"content\app");
+            var key = string.Format(CacheKeyFormat, name.ToLower());
+            var data = _cache.Get(key) as string;
+
+            if (data != null)
+                return data;
+
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"CustomViews");
 
             file = Path.Combine(file, name + ".html");
 
-            return File.ReadAllText(file);
+            var text = File.ReadAllText(file);
+
+            _cache.Put(key, text);
+
+            return text;
         }
 
         private static string Replace(string value, IDictionary<string, object> values)

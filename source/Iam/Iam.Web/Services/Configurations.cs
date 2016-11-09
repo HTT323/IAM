@@ -1,9 +1,9 @@
 ﻿#region
 
 using System.Data.Entity;
+using Iam.Common.Contracts;
 using Iam.Identity;
 using Iam.Web.Migrations.Users;
-using Iam.Web.Services;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
 using IdentityServer3.EntityFramework;
@@ -12,7 +12,7 @@ using Owin;
 
 #endregion
 
-namespace Iam.Web.Plumbing
+namespace Iam.Web.Services
 {
     [UsedImplicitly]
     public static class Configurations
@@ -41,6 +41,20 @@ namespace Iam.Web.Plumbing
             this IdentityServerServiceFactory factory,
             string connectionString)
         {
+            #region Conditional Services (Debug or Release)
+
+#if DEBUG
+
+            factory.Register(new Registration<ICache, NoCache>());
+
+#else
+            
+            factory.Register(new Registration<ICache, HttpCache>());
+            
+#endif
+
+            #endregion
+
             factory.ViewService = new Registration<IViewService, CustomViewService>();
 
             return factory.RegisterIdentityServices(connectionString).RegisterUserServices(connectionString);
