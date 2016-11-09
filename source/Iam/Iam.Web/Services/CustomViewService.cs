@@ -26,13 +26,15 @@ namespace Iam.Web.Services
     public class CustomViewService : IViewService
     {
         private const string CacheKeyFormat = "8CDA3BF1-4C73-406D-9C2E-16F56357C6B0-{0}";
+        private readonly IBundle _bundle;
         private readonly ICache _cache;
         private readonly IClientStore _clientStore;
 
-        public CustomViewService(IClientStore clientStore, ICache cache)
+        public CustomViewService(IClientStore clientStore, ICache cache, IBundle bundle)
         {
             _clientStore = clientStore;
             _cache = cache;
+            _bundle = bundle;
         }
 
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
@@ -96,12 +98,15 @@ namespace Iam.Web.Services
             if (data != null)
                 return data;
 
-            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"CustomViews");
+            var file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CustomViews");
 
             file = Path.Combine(file, name + ".html");
 
             var text = File.ReadAllText(file);
 
+            text = _bundle.RenderCss(text);
+            text = _bundle.RenderJs(text);
+            
             _cache.Put(key, text);
 
             return text;

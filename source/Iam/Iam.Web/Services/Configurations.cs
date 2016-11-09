@@ -1,6 +1,7 @@
 ﻿#region
 
 using System.Data.Entity;
+using System.Diagnostics;
 using Iam.Common.Contracts;
 using Iam.Identity;
 using Iam.Web.Migrations.Users;
@@ -17,6 +18,19 @@ namespace Iam.Web.Services
     [UsedImplicitly]
     public static class Configurations
     {
+        private static bool _debug;
+
+        static Configurations()
+        {
+            SetDebugFlag();
+        }
+
+        [Conditional("DEBUG")]
+        private static void SetDebugFlag()
+        {
+            _debug = true;
+        }
+
         /// <summary>
         ///     Enable migrations.
         /// </summary>
@@ -41,19 +55,16 @@ namespace Iam.Web.Services
             this IdentityServerServiceFactory factory,
             string connectionString)
         {
-            #region Conditional Services (Debug or Release)
+            if (_debug)
+            {
+                factory.Register(new Registration<ICache, NoCache>());
+            }
+            else
+            {
+                factory.Register(new Registration<ICache, HttpCache>());
+            }
 
-#if DEBUG
-
-            factory.Register(new Registration<ICache, NoCache>());
-
-#else
-            
-            factory.Register(new Registration<ICache, HttpCache>());
-            
-#endif
-
-            #endregion
+            factory.Register(new Registration<IBundle, Bundle>());
 
             factory.ViewService = new Registration<IViewService, CustomViewService>();
 

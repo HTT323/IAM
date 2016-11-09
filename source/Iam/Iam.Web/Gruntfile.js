@@ -2,6 +2,13 @@
 module.exports = function (grunt) {
 
     grunt.initConfig({
+        cssmin: {
+            site: {
+                files: {
+                    "content/site.min.css": ["content/site.css"]
+                }
+            }
+        },
         concat: {
             css: {
                 src: [
@@ -9,6 +16,14 @@ module.exports = function (grunt) {
                     "lib/components-font-awesome/css/font-awesome.min.css"
                 ],
                 dest: "content/styles.min.css"
+            },
+            all: {
+                src: [
+                    "lib/bootstrap/dist/css/bootstrap.min.css",
+                    "lib/components-font-awesome/css/font-awesome.min.css",
+                    "content/site.min.css"
+                ],
+                dest: "content/all.min.css"
             },
             js: {
                 options: {
@@ -34,10 +49,11 @@ module.exports = function (grunt) {
         }
     });
     
+    grunt.loadNpmTasks("grunt-contrib-cssmin");
     grunt.loadNpmTasks("grunt-contrib-concat");
     grunt.loadNpmTasks("grunt-contrib-copy");
     
     grunt.registerTask("build:js", ["concat:js"]);
-    grunt.registerTask("build:css", ["concat:css", "copy:fonts"]);
+    grunt.registerTask("build:css", ["cssmin:site", "concat:css", "concat:all", "copy:fonts"]);
 
 };
