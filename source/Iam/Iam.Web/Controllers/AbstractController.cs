@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace Iam.Web.Controllers
 {
+    [Authorize]
     public abstract class AbstractController : Controller
     {
     }

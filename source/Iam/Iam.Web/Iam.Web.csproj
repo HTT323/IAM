@@ -249,9 +249,15 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AbstractController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\Scopes\201611101409525_Initial.cs" />
+    <Compile Include="Migrations\Scopes\201611101409525_Initial.Designer.cs">
+      <DependentUpon>201611101409525_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Scopes\ScopeMigration.cs" />
     <Compile Include="Migrations\Users\201611051355232_Initial.cs" />
     <Compile Include="Migrations\Users\201611051355232_Initial.Designer.cs">
       <DependentUpon>201611051355232_Initial.cs</DependentUpon>
@@ -300,6 +306,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Filters\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
@@ -316,6 +323,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\Scopes\201611101409525_Initial.resx">
+      <DependentUpon>201611101409525_Initial.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\Users\201611051355232_Initial.resx">
       <DependentUpon>201611051355232_Initial.cs</DependentUpon>
     </EmbeddedResource>
@@ -335,6 +345,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CustomViews\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Manage\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

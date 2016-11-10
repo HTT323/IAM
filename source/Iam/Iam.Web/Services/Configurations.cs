@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using Iam.Common.Contracts;
 using Iam.Identity;
+using Iam.Web.Migrations.Scopes;
 using Iam.Web.Migrations.Users;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
@@ -41,6 +42,9 @@ namespace Iam.Web.Services
         {
             Database.SetInitializer(
                 new MigrateDatabaseToLatestVersion<IamContext, UserMigration>(connectionString));
+
+            Database.SetInitializer(
+                new MigrateDatabaseToLatestVersion<ScopeConfigurationDbContext, ScopeMigration>(connectionString));
 
             return app;
         }
