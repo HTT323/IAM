@@ -19,15 +19,9 @@ namespace Iam.Web.Migrations.Scopes
 
         protected override void Seed(ScopeConfigurationDbContext context)
         {
-            var scopes = new List<Scope>
-            {
-                StandardScopes.OpenId,
-                StandardScopes.Profile,
-                StandardScopes.Email,
-                StandardScopes.Address,
-                StandardScopes.Phone,
-                StandardScopes.OfflineAccess
-            };
+            var scopes = new List<Scope>();
+
+            scopes.AddRange(StandardScopes.All);
 
             context.Scopes.AddOrUpdate(s => s.Name,
                 scopes.Select(m => m.ToEntity()).ToArray());
