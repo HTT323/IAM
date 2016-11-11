@@ -28,6 +28,9 @@ namespace Iam.Common
         public static readonly string IamClientId =
             ConfigurationManager.AppSettings["IamClientId"];
 
+        public static readonly string IamClientName =
+            ConfigurationManager.AppSettings["IamClientName"];
+
         public static readonly string IamConnectionString =
             ConfigurationManager.AppSettings["IamConnectionString"];
 

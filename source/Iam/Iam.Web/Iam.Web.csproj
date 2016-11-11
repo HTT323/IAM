@@ -259,6 +259,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Middlewares\TenantMiddleware.cs" />
+    <Compile Include="Migrations\Clients\201611111338007_Initial.cs" />
+    <Compile Include="Migrations\Clients\201611111338007_Initial.Designer.cs">
+      <DependentUpon>201611111338007_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Clients\ClientMigration.cs" />
     <Compile Include="Migrations\Scopes\201611101409525_Initial.cs" />
     <Compile Include="Migrations\Scopes\201611101409525_Initial.Designer.cs">
       <DependentUpon>201611101409525_Initial.cs</DependentUpon>
@@ -329,6 +334,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Migrations\Clients\201611111338007_Initial.resx">
+      <DependentUpon>201611111338007_Initial.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\Scopes\201611101409525_Initial.resx">
       <DependentUpon>201611101409525_Initial.cs</DependentUpon>
     </EmbeddedResource>
