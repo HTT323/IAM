@@ -74,12 +74,16 @@ namespace Iam.Web
             return new OpenIdConnectAuthenticationNotifications
             {
                 RedirectToIdentityProvider =
-                    n =>
+                    rto =>
                     {
-                        var uri = n.Request.Uri;
+                        var uri = rto.Request.Uri;
 
-                        n.ProtocolMessage.RedirectUri = $"https://{uri.Host}:{uri.Port}/";
-                        n.ProtocolMessage.PostLogoutRedirectUri = $"https://{uri.Host}:{uri.Port}/";
+                        var redirectUri = uri.Port == 443
+                            ? $"{uri.Scheme}://{uri.Host}/"
+                            : $"{uri.Scheme}://{uri.Host}:{uri.Port}/";
+
+                        rto.ProtocolMessage.RedirectUri = redirectUri;
+                        rto.ProtocolMessage.PostLogoutRedirectUri = redirectUri;
 
                         return Task.FromResult(0);
                     }
