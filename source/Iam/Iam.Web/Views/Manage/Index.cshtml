@@ -1,1 +1,21 @@
-﻿
+﻿@using System.Security.Claims
+
+<div class="container">
+    <h3>User Claims</h3>
+    @{
+        var user = User as ClaimsPrincipal;
+    }
+
+    @if (user != null)
+    {
+        <ul>
+            @foreach (var claim in user.Claims)
+            {
+                <li>
+                    @claim.Type<br/>
+                    <em>@claim.Value</em>
+                </li>
+            }
+        </ul>
+    }
+</div>

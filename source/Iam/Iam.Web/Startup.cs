@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using System.Web.Helpers;
 using Iam.Common;
 using Iam.Web;
+using Iam.Web.Middlewares;
 using Iam.Web.Services;
 using IdentityModel;
 using IdentityServer3.Core;
@@ -14,6 +16,7 @@ using IdentityServer3.Core.Configuration;
 using JetBrains.Annotations;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.OpenIdConnect;
 using Owin;
 
 #endregion
@@ -32,7 +35,9 @@ namespace Iam.Web
 
             app.UseMigrations(AppSettings.IamConnectionString);
 
-            app.Map(AppSettings.IdentityServerPath, ids =>
+            app.Use(typeof(TenantMiddleware));
+
+            app.MapWhen(IsAuthDomain, ids =>
             {
                 ids.UseIdentityServer(new IdentityServerOptions
                 {
@@ -49,21 +54,52 @@ namespace Iam.Web
                 AuthenticationType = "Cookies"
             });
 
-            ConfigureIam(app);
+            app.MapWhen(IsClientDomain, iam =>
+            {
+                iam.UseOpenIdConnectAuthentication(
+                    new OpenIdConnectAuthenticationOptions
+                    {
+                        Authority = AppSettings.IdpAuthority,
+                        ClientId = AppSettings.IamClientId,
+                        ResponseType = "id_token",
+                        SignInAsAuthenticationType = "Cookies",
+                        Scope = "openid profile email",
+                        Notifications = GetNotifications()
+                    });
+            });
         }
 
-        /// <summary>
-        ///     Configure Identity and Access Management.
-        /// </summary>
-        /// <param name="app"></param>
-        private void ConfigureIam(IAppBuilder app)
+        private OpenIdConnectAuthenticationNotifications GetNotifications()
         {
+            return new OpenIdConnectAuthenticationNotifications
+            {
+                RedirectToIdentityProvider =
+                    n =>
+                    {
+                        var uri = n.Request.Uri;
+
+                        n.ProtocolMessage.RedirectUri = $"https://{uri.Host}:{uri.Port}/";
+                        n.ProtocolMessage.PostLogoutRedirectUri = $"https://{uri.Host}:{uri.Port}/";
+
+                        return Task.FromResult(0);
+                    }
+            };
         }
 
-        /// <summary>
-        ///     Load certificate using subject distinguished name.
-        /// </summary>
-        /// <returns></returns>
+        private bool IsAuthDomain(IOwinContext context)
+        {
+            var sd = context.Get<string>(TenantMiddleware.TenantKey);
+
+            return sd == AppSettings.AuthDomain;
+        }
+
+        private bool IsClientDomain(IOwinContext context)
+        {
+            var sd = context.Get<string>(TenantMiddleware.TenantKey);
+
+            return sd != AppSettings.AuthDomain;
+        }
+
         private X509Certificate2 LoadCertificate()
         {
             return X509.LocalMachine.My.SubjectDistinguishedName
