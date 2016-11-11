@@ -43,3 +43,10 @@ source/.vs/config/applicationhost.config
 
 Set the Iam.Web Start URL > https://www.iam.dev:44300
 
+## Multi-tenant Claims
+
+type: iam/tenant
+value: orion
+
+type: iam/{tenant}/role
+value: Administrator
