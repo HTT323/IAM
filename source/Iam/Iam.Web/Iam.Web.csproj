@@ -264,6 +264,7 @@
       <DependentUpon>201611111338007_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Clients\ClientMigration.cs" />
+    <Compile Include="Migrations\DataFileLoader.cs" />
     <Compile Include="Migrations\Scopes\201611101409525_Initial.cs" />
     <Compile Include="Migrations\Scopes\201611101409525_Initial.Designer.cs">
       <DependentUpon>201611101409525_Initial.cs</DependentUpon>

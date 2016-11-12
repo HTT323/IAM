@@ -2,6 +2,24 @@
   {
     "Enabled": true,
     "ClientId": "iam",
-    "ClientName": "Identity and Access Management"
+    "ClientName": "Identity and Access Management",
+    "Flow": 1,
+    "RequireConsent": false,
+    "RedirectUris": [
+      "https://orion.iam.dev:44300/",
+      "https://nebula.iam.dev:44300/"
+    ],
+    "PostLogoutRedirectUris": [
+      "https://orion.iam.dev:44300/",
+      "https://nebula.iam.dev:44300/"
+    ],
+    "IdentityProviderRestrictions": [
+      "idsrv"
+    ],
+    "AllowedScopes": [
+      "openid",
+      "profile",
+      "email"
+    ]
   }
 ]

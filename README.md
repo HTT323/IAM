@@ -45,8 +45,8 @@ Set the Iam.Web Start URL > https://www.iam.dev:44300
 
 ## Multi-tenant Claims
 
-type: iam/tenant
+type: tenantid
 value: orion
 
-type: iam/{tenant}/role
+type: {tenantid}/role
 value: Administrator
