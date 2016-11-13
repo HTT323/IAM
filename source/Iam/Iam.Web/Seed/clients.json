@@ -23,5 +23,43 @@
       "profile",
       "email"
     ]
+  },
+  {
+    "Enabled": true,
+    "ClientId": "orion-portal",
+    "ClientName": "Orion Portal",
+    "Flow": 1,
+    "RequireConsent": false,
+    "RedirectUris": [
+      "https://www.orion-portal.dev:44310/"
+    ],
+    "PostLogoutRedirectUris": [
+      "https://www.orion-portal.dev:44310/"
+    ],
+    "AllowedScopes": [
+      "openid",
+      "profile",
+      "email",
+      "role"
+    ]
+  },
+  {
+    "Enabled": true,
+    "ClientId": "nebula-portal",
+    "ClientName": "Nebula Portal",
+    "Flow": 1,
+    "RequireConsent": false,
+    "RedirectUris": [
+      "https://www.nebula-portal.dev:44320/"
+    ],
+    "PostLogoutRedirectUris": [
+      "https://www.nebula-portal.dev:44320/"
+    ],
+    "AllowedScopes": [
+      "openid",
+      "profile",
+      "email",
+      "role"
+    ]
   }
 ]

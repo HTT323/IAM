@@ -19,11 +19,13 @@ namespace Iam.Identity
     public class UserService : AspNetIdentityUserService<IamUser, string>
     {
         private readonly TenantUserManager _tenantUserManager;
+        private readonly TenantService _tenantService;
 
-        public UserService(IdsUserManager userManager, TenantUserManager tenantUserManager)
+        public UserService(IdsUserManager userManager, TenantUserManager tenantUserManager, TenantService tenantService)
             : base(userManager)
         {
             _tenantUserManager = tenantUserManager;
+            _tenantService = tenantService;
         }
 
         public override async Task AuthenticateLocalAsync(LocalAuthenticationContext ctx)
@@ -43,9 +45,12 @@ namespace Iam.Identity
             }
             else
             {
-                // TODO: Lookup other registered client and resolve the tenant id.
-                // Sample: Client ID: orion-portal (www.orion-portal.com), Tenant: orion
-                throw new NotImplementedException();
+                var mapping = _tenantService.GetClientMapping(clientId);
+
+                if (mapping == null)
+                    throw new InvalidOperationException("Invalid tenant mapping");
+
+                _tenantUserManager.TenantUserStore.TenantContext.CacheKey = mapping.TenantId;
             }
 
             var username = ctx.UserName;
