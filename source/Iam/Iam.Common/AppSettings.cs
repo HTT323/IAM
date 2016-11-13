@@ -37,6 +37,9 @@ namespace Iam.Common
         public static readonly string IamClientName =
             ConfigurationManager.AppSettings["IamClientName"];
 
+        public static readonly string IamHomeFullUrl =
+            ConfigurationManager.AppSettings["IamHomeFullUrl"];
+
         #endregion
 
         #region Identity Server

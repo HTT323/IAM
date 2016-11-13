@@ -47,7 +47,8 @@ namespace Iam.Web
                     SigningCertificate = LoadCertificate(),
                     RequireSsl = true,
                     Factory = new IdentityServerServiceFactory().Configure(),
-                    EnableWelcomePage = false
+                    EnableWelcomePage = false,
+                    AuthenticationOptions = new AuthenticationOptions {RememberLastUsername = true}
                 });
             });
 

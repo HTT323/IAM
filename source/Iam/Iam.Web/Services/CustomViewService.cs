@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using Iam.Common;
 using Iam.Common.Contracts;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
@@ -41,6 +42,10 @@ namespace Iam.Web.Services
         {
             var client = await _clientStore.FindClientByIdAsync(message.ClientId);
             var name = client?.ClientName;
+
+            model.AllowRememberMe = false;
+
+            // TODO: Get the client id and resolve the tenant, replace the name with "Tenant" if the client is IAM.
 
             return await Render(model, "login", name);
         }
@@ -82,6 +87,8 @@ namespace Iam.Web.Services
 
             html = Replace(html, new
             {
+                iamHomeUrl = AppSettings.IamHomeFullUrl,
+                iamName = AppSettings.IamClientName,
                 siteName = Encoder.HtmlEncode(model.SiteName),
                 model = Encoder.HtmlEncode(json),
                 clientName
