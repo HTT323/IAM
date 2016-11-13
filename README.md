@@ -17,7 +17,7 @@ orion.role		Administrator
 orion.role		Owner
 nebula.role		User
 
-## Multi-tenant Settings
+## Multi-Tenant Settings
 
 ### Hosts File
 
@@ -43,10 +43,16 @@ source/.vs/config/applicationhost.config
 
 Set the Iam.Web Start URL > https://www.iam.dev:44300
 
-## Multi-tenant Claims
+### Design
 
-type: tenantid
-value: orion
+Single IDS database instance
+- client: iam
 
-type: {tenantid}/role
-value: Administrator
+- IAM Client Mapping (using the registered sub-domain)
+- tenant: orion
+-- www.orionportal.com (client: orionportal)
+-- www.orionhr.com (client: orionhr)
+-- www.orion.com (client: orionhr)
+
+
+

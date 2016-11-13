@@ -6,10 +6,12 @@
     "Flow": 1,
     "RequireConsent": false,
     "RedirectUris": [
+      "https://admin.iam.dev:44300/",
       "https://orion.iam.dev:44300/",
       "https://nebula.iam.dev:44300/"
     ],
     "PostLogoutRedirectUris": [
+      "https://admin.iam.dev:44300/",
       "https://orion.iam.dev:44300/",
       "https://nebula.iam.dev:44300/"
     ],

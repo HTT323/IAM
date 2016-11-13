@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Linq;
@@ -14,6 +15,7 @@ using IdentityModel;
 using IdentityServer3.Core;
 using IdentityServer3.Core.Configuration;
 using JetBrains.Annotations;
+using Microsoft.IdentityModel.Protocols;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
@@ -33,7 +35,7 @@ namespace Iam.Web
             AntiForgeryConfig.UniqueClaimTypeIdentifier = Constants.ClaimTypes.Subject;
             JwtSecurityTokenHandler.InboundClaimTypeMap = new Dictionary<string, string>();
 
-            app.UseMigrations(AppSettings.IamConnectionString);
+            app.UseMigrations(AppSettings.IdsConnectionString);
 
             app.Use(typeof(TenantMiddleware));
 
@@ -44,7 +46,7 @@ namespace Iam.Web
                     SiteName = AppSettings.IdentityServerSiteName,
                     SigningCertificate = LoadCertificate(),
                     RequireSsl = true,
-                    Factory = new IdentityServerServiceFactory().Configure(AppSettings.IamConnectionString),
+                    Factory = new IdentityServerServiceFactory().Configure(),
                     EnableWelcomePage = false
                 });
             });
@@ -77,6 +79,16 @@ namespace Iam.Web
                     rto =>
                     {
                         var uri = rto.Request.Uri;
+
+                        if (rto.ProtocolMessage.RequestType == OpenIdConnectRequestType.AuthenticationRequest)
+                        {
+                            var parts = uri.Host.Split('.');
+
+                            if (parts.Length != 3)
+                                throw new InvalidOperationException();
+
+                            rto.ProtocolMessage.AcrValues = $"tenant:{parts[0]}";
+                        }
 
                         var redirectUri = uri.Port == 443
                             ? $"{uri.Scheme}://{uri.Host}/"

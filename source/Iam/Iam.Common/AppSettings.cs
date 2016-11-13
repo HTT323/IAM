@@ -22,8 +22,14 @@ namespace Iam.Common
 
         #region IAM General Settings
 
+        public static readonly string IamConnectionString =
+            ConfigurationManager.AppSettings["IamConnectionString"];
+
         public static readonly string AuthDomain =
             ConfigurationManager.AppSettings["AuthDomain"];
+
+        public static readonly string AdminDomain =
+            ConfigurationManager.AppSettings["AdminDomain"];
 
         public static readonly string IamClientId =
             ConfigurationManager.AppSettings["IamClientId"];
@@ -31,12 +37,12 @@ namespace Iam.Common
         public static readonly string IamClientName =
             ConfigurationManager.AppSettings["IamClientName"];
 
-        public static readonly string IamConnectionString =
-            ConfigurationManager.AppSettings["IamConnectionString"];
-
         #endregion
 
         #region Identity Server
+
+        public static readonly string IdsConnectionString =
+            ConfigurationManager.AppSettings["IdsConnectionString"];
 
         public static readonly string IdpAuthority =
             ConfigurationManager.AppSettings["IdpAuthority"];

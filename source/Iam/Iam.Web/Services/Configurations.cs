@@ -2,6 +2,7 @@
 
 using System.Data.Entity;
 using System.Diagnostics;
+using Iam.Common;
 using Iam.Common.Contracts;
 using Iam.Identity;
 using Iam.Web.Migrations.Clients;
@@ -42,7 +43,7 @@ namespace Iam.Web.Services
         public static IAppBuilder UseMigrations(this IAppBuilder app, string connectionString)
         {
             Database.SetInitializer(
-                new MigrateDatabaseToLatestVersion<IamContext, UserMigration>(connectionString));
+                new MigrateDatabaseToLatestVersion<IdsContext, UserMigration>(connectionString));
 
             Database.SetInitializer(
                 new MigrateDatabaseToLatestVersion<ScopeConfigurationDbContext, ScopeMigration>(connectionString));
@@ -57,11 +58,9 @@ namespace Iam.Web.Services
         ///     Configure ID Server to use a custom view service, EF and ASP.NET Identity.
         /// </summary>
         /// <param name="factory"></param>
-        /// <param name="connectionString"></param>
         /// <returns></returns>
         public static IdentityServerServiceFactory Configure(
-            this IdentityServerServiceFactory factory,
-            string connectionString)
+            this IdentityServerServiceFactory factory)
         {
             if (_debug)
             {
@@ -73,17 +72,17 @@ namespace Iam.Web.Services
             }
 
             factory.Register(new Registration<IBundle, Bundle>());
-
+            
+            factory.CustomRequestValidator = new Registration<ICustomRequestValidator, CustomRequestValidator>();
             factory.ViewService = new Registration<IViewService, CustomViewService>();
 
-            return factory.RegisterIdentityServices(connectionString).RegisterUserServices(connectionString);
+            return factory.RegisterIdentityServices().RegisterUserServices();
         }
 
         private static IdentityServerServiceFactory RegisterIdentityServices(
-            this IdentityServerServiceFactory factory,
-            string connectionString)
+            this IdentityServerServiceFactory factory)
         {
-            var option = new EntityFrameworkServiceOptions {ConnectionString = connectionString};
+            var option = new EntityFrameworkServiceOptions {ConnectionString = AppSettings.IdsConnectionString};
 
             factory.RegisterOperationalServices(option);
             factory.RegisterConfigurationServices(option);
@@ -92,13 +91,17 @@ namespace Iam.Web.Services
         }
 
         private static IdentityServerServiceFactory RegisterUserServices(
-            this IdentityServerServiceFactory factory,
-            string connectionString)
+            this IdentityServerServiceFactory factory)
         {
             factory.UserService = new Registration<IUserService, UserService>();
-            factory.Register(new Registration<IamUserManager>());
-            factory.Register(new Registration<IamUserStore>());
-            factory.Register(new Registration<IamContext>(resolver => new IamContext(connectionString)));
+
+            factory.Register(new Registration<IdsContext>());
+            factory.Register(new Registration<IdsUserStore>());
+            factory.Register(new Registration<IdsUserManager>());
+
+            factory.Register(new Registration<TenantContext>());
+            factory.Register(new Registration<TenantUserStore>());
+            factory.Register(new Registration<TenantUserManager>());
 
             return factory;
         }
