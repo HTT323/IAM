@@ -7,6 +7,7 @@ using Iam.Common.Contracts;
 using Iam.Identity;
 using Iam.Web.Migrations.Clients;
 using Iam.Web.Migrations.Scopes;
+using Iam.Web.Migrations.TenantMappings;
 using Iam.Web.Migrations.Users;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
@@ -51,6 +52,9 @@ namespace Iam.Web.Services
             Database.SetInitializer(
                 new MigrateDatabaseToLatestVersion<ClientConfigurationDbContext, ClientMigration>(connectionString));
 
+            Database.SetInitializer(
+                new MigrateDatabaseToLatestVersion<AdminContext, TenantMappingMigration>(connectionString));
+
             return app;
         }
 
@@ -72,7 +76,9 @@ namespace Iam.Web.Services
             }
 
             factory.Register(new Registration<IBundle, Bundle>());
-            
+            factory.Register(new Registration<IAdminContext, AdminContext>());
+            factory.Register(new Registration<TenantService>());
+
             factory.CustomRequestValidator = new Registration<ICustomRequestValidator, CustomRequestValidator>();
             factory.ViewService = new Registration<IViewService, CustomViewService>();
 

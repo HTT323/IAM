@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Iam.Common;
 using Iam.Common.Contracts;
+using Iam.Identity;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using IdentityServer3.Core.Validation;
@@ -28,14 +29,16 @@ namespace Iam.Web.Services
     {
         private const string CacheKeyFormat = "8CDA3BF1-4C73-406D-9C2E-16F56357C6B0-{0}";
         private readonly IBundle _bundle;
+        private readonly TenantService _tenantService;
         private readonly ICache _cache;
         private readonly IClientStore _clientStore;
 
-        public CustomViewService(IClientStore clientStore, ICache cache, IBundle bundle)
+        public CustomViewService(IClientStore clientStore, ICache cache, IBundle bundle, TenantService tenantService)
         {
             _clientStore = clientStore;
             _cache = cache;
             _bundle = bundle;
+            _tenantService = tenantService;
         }
 
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
@@ -45,7 +48,18 @@ namespace Iam.Web.Services
 
             model.AllowRememberMe = false;
 
-            // TODO: Get the client id and resolve the tenant, replace the name with "Tenant" if the client is IAM.
+            var clientId = message.ClientId;
+            var tenant = message.Tenant;
+
+            if (clientId != AppSettings.IamClientId)
+                return await Render(model, "login", name);
+
+            var mapping = _tenantService.GetIamMapping(tenant, clientId);
+
+            if (mapping == null)
+                throw new InvalidOperationException("Invalid tenant mapping");
+
+            name = mapping.TenantName;
 
             return await Render(model, "login", name);
         }

@@ -31,15 +31,13 @@ namespace Iam.Identity
             var clientId = ctx.SignInMessage.ClientId;
             var tenant = ctx.SignInMessage.Tenant;
 
-            if ((clientId == AppSettings.IamClientId) &&
-                (tenant == AppSettings.AdminDomain))
+            if (clientId == AppSettings.IamClientId && tenant == AppSettings.AdminDomain)
             {
                 await base.AuthenticateLocalAsync(ctx);
                 return;
             }
 
-            if ((clientId == AppSettings.IamClientId) &&
-                (tenant != AppSettings.AdminDomain))
+            if (clientId == AppSettings.IamClientId && tenant != AppSettings.AdminDomain)
             {
                 _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant;
             }
@@ -59,6 +57,7 @@ namespace Iam.Identity
             if (_tenantUserManager.SupportsUserPassword)
             {
                 var user = await FindUserAsync(_tenantUserManager, username);
+
                 if (user != null)
                 {
                     if (_tenantUserManager.SupportsUserLockout &&
@@ -80,8 +79,10 @@ namespace Iam.Identity
                         {
                             var claims = await GetClaimsForAuthenticateResult(_tenantUserManager, user);
 
-                            result = new AuthenticateResult(user.Id,
-                                await GetDisplayNameForAccountAsync(_tenantUserManager, user.Id), claims);
+                            result =
+                                new AuthenticateResult(
+                                    user.Id,
+                                    await GetDisplayNameForAccountAsync(_tenantUserManager, user.Id), claims);
                         }
 
                         ctx.AuthenticateResult = result;
@@ -95,7 +96,7 @@ namespace Iam.Identity
         }
 
         private async Task<string> GetDisplayNameForAccountAsync(
-            TenantUserManager tenantUserManager, 
+            TenantUserManager tenantUserManager,
             string userId)
         {
             var user = await tenantUserManager.FindByIdAsync(userId);
@@ -189,7 +190,7 @@ namespace Iam.Identity
         }
 
         private static async Task<IamUser> FindUserAsync(
-            TenantUserManager tenantUserManager, 
+            TenantUserManager tenantUserManager,
             string username)
         {
             return await tenantUserManager.FindByNameAsync(username);
