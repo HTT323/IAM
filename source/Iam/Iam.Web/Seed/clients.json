@@ -21,7 +21,8 @@
     "AllowedScopes": [
       "openid",
       "profile",
-      "email"
+      "email",
+      "role"
     ]
   },
   {

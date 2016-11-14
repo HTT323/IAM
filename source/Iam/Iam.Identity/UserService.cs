@@ -124,7 +124,7 @@ namespace Iam.Identity
 
             _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
 
-            var key = ConvertSubjectToKey(subject.GetSubjectId());
+            var key = subject.GetSubjectId();
             var acct = await _tenantUserManager.FindByIdAsync(key);
 
             if (acct == null)
@@ -159,9 +159,8 @@ namespace Iam.Identity
             }
 
             _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
-
-            var id = subject.GetSubjectId();
-            var key = ConvertSubjectToKey(id);
+            
+            var key = subject.GetSubjectId();
             var acct = await _tenantUserManager.FindByIdAsync(key);
 
             ctx.IsActive = false;

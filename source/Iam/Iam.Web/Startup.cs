@@ -66,7 +66,7 @@ namespace Iam.Web
                         ClientId = AppSettings.IamClientId,
                         ResponseType = "id_token",
                         SignInAsAuthenticationType = "Cookies",
-                        Scope = "openid profile email",
+                        Scope = "openid profile email role",
                         Notifications = GetNotifications()
                     });
             });
