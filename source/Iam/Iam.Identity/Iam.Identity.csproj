@@ -114,6 +114,7 @@
     <Compile Include="TenantUserStore.cs" />
     <Compile Include="Tenant\TenantMapping.cs" />
     <Compile Include="Tenant\TenantMappingConfiguration.cs" />
+    <Compile Include="Tenant\TenantUserInitializer.cs" />
     <Compile Include="UserService.cs" />
   </ItemGroup>
   <ItemGroup>

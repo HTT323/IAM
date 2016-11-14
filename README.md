@@ -52,7 +52,7 @@ source/.vs/config/applicationhost.config
 
 Set the Iam.Web Start URL > https://www.iam.dev:44300
 Set the Iam.Orion.Web Start URL > https://www.orion-portal.dev:44310
-Set the Iam.Nebula.Web Start URL > https://wwwwww.nebula-portal.dev:44320
+Set the Iam.Nebula.Web Start URL > https://www.nebula-portal.dev:44320
 
 ### Design
 

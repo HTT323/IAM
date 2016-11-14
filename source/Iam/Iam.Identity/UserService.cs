@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Iam.Common;
 using IdentityServer3.AspNetIdentity;
 using IdentityServer3.Core;
+using IdentityServer3.Core.Extensions;
 using IdentityServer3.Core.Models;
 using JetBrains.Annotations;
 
@@ -20,7 +21,7 @@ namespace Iam.Identity
     {
         private readonly TenantUserManager _tenantUserManager;
         private readonly TenantService _tenantService;
-
+        
         public UserService(IdsUserManager userManager, TenantUserManager tenantUserManager, TenantService tenantService)
             : base(userManager)
         {
@@ -39,9 +40,13 @@ namespace Iam.Identity
                 return;
             }
 
+            string tenantClaim;
+
             if (clientId == AppSettings.IamClientId && tenant != AppSettings.AdminDomain)
             {
                 _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant;
+
+                tenantClaim = tenant;
             }
             else
             {
@@ -51,6 +56,8 @@ namespace Iam.Identity
                     throw new InvalidOperationException("Invalid tenant mapping");
 
                 _tenantUserManager.TenantUserStore.TenantContext.CacheKey = mapping.TenantId;
+
+                tenantClaim = mapping.TenantId;
             }
 
             var username = ctx.UserName;
@@ -82,7 +89,7 @@ namespace Iam.Identity
 
                         if (result == null)
                         {
-                            var claims = await GetClaimsForAuthenticateResult(_tenantUserManager, user);
+                            var claims = await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantClaim);
 
                             result =
                                 new AuthenticateResult(
@@ -97,6 +104,86 @@ namespace Iam.Identity
                         await _tenantUserManager.AccessFailedAsync(user.Id);
                     }
                 }
+            }
+        }
+
+        public override async Task GetProfileDataAsync(ProfileDataRequestContext ctx)
+        {
+            var subject = ctx.Subject;
+            
+            if (subject == null)
+                throw new ArgumentNullException(nameof(subject));
+
+            var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
+
+            if (tenant == null)
+            {
+                await base.GetProfileDataAsync(ctx);
+                return;
+            }
+
+            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
+
+            var key = ConvertSubjectToKey(subject.GetSubjectId());
+            var acct = await _tenantUserManager.FindByIdAsync(key);
+
+            if (acct == null)
+            {
+                throw new ArgumentException("Invalid subject identifier");
+            }
+
+            var claims = await GetClaimsFromAccount(_tenantUserManager, acct);
+            var requestedClaimTypes = ctx.RequestedClaimTypes.ToList();
+
+            if (requestedClaimTypes.Any())
+            {
+                claims = claims.Where(x => requestedClaimTypes.Contains(x.Type));
+            }
+
+            ctx.IssuedClaims = claims;
+        }
+
+        public override async Task IsActiveAsync(IsActiveContext ctx)
+        {
+            var subject = ctx.Subject;
+
+            if (subject == null)
+                throw new ArgumentNullException(nameof(subject));
+
+            var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
+
+            if (tenant == null)
+            {
+                await base.IsActiveAsync(ctx);
+                return;
+            }
+
+            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
+
+            var id = subject.GetSubjectId();
+            var key = ConvertSubjectToKey(id);
+            var acct = await _tenantUserManager.FindByIdAsync(key);
+
+            ctx.IsActive = false;
+
+            if (acct != null)
+            {
+                if (EnableSecurityStamp && _tenantUserManager.SupportsUserSecurityStamp)
+                {
+                    var securityStamp = subject.Claims.Where(x => x.Type == "security_stamp").Select(x => x.Value).SingleOrDefault();
+
+                    if (securityStamp != null)
+                    {
+                        var dbSecurityStamp = await _tenantUserManager.GetSecurityStampAsync(key);
+
+                        if (dbSecurityStamp != securityStamp)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                ctx.IsActive = true;
             }
         }
 
@@ -178,7 +265,8 @@ namespace Iam.Identity
 
         private async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(
             TenantUserManager tenantUserManager,
-            IamUser user)
+            IamUser user, 
+            string tenant)
         {
             var claims = new List<Claim>();
 
@@ -186,10 +274,10 @@ namespace Iam.Identity
 
             var stamp = await tenantUserManager.GetSecurityStampAsync(user.Id);
 
-            if (!string.IsNullOrWhiteSpace(stamp))
-            {
-                claims.Add(new Claim("security_stamp", stamp));
-            }
+            if (string.IsNullOrWhiteSpace(stamp)) return claims;
+
+            claims.Add(new Claim("security_stamp", stamp));
+            claims.Add(new Claim("tenant_mapping", tenant));
 
             return claims;
         }

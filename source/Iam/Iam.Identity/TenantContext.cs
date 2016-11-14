@@ -3,6 +3,7 @@
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using Iam.Common;
+using Iam.Identity.Tenant;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -24,7 +25,7 @@ namespace Iam.Identity
             if (!string.IsNullOrWhiteSpace(CacheKey))
             {
                 modelBuilder.HasDefaultSchema(CacheKey);
-                Database.SetInitializer(new CreateDatabaseIfNotExists<TenantContext>());
+                Database.SetInitializer(new TenantUserInitializer());
             }
 
             base.OnModelCreating(modelBuilder);
