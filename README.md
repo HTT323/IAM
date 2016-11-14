@@ -67,6 +67,8 @@ Single IDS database instance
 
 ### Orion Portal Setup
 
+- be careful when copying the thumbprint from the cert - it contains hidden characters in front, sanitize first.
+
 Remove current SSL binding > netsh http delete sslcert ipport=0.0.0.0:44310
 Apply SSL binding > netsh http add sslcert ipport=0.0.0.0:44310 appid={214124cd-d05b-4309-9af9-9caa44b2b74a} certhash=THUMBPRINT_OF_ORION_PORTAL_CERT
 
