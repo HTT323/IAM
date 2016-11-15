@@ -6,6 +6,7 @@ using System.Linq;
 using IdentityServer3.Core;
 using IdentityServer3.Core.Models;
 using IdentityServer3.EntityFramework;
+using System.Diagnostics;
 
 #endregion
 
@@ -35,8 +36,22 @@ namespace Iam.Web.Migrations.Scopes
                 }
             });
 
+            AddSampleApi(scopes);
+
             context.Scopes.AddOrUpdate(s => s.Name,
                 scopes.Select(m => m.ToEntity()).ToArray());
+        }
+
+        [Conditional("DEBUG")]
+        private void AddSampleApi(List<Scope> scopes)
+        {
+            scopes.Add(new Scope
+            {
+                Name = "nebula-api-scope",
+                Type = ScopeType.Resource,
+                DisplayName = "Nebula API Scope",
+                Description = "Access to Nebula API"
+            });
         }
     }
 }

@@ -28,5 +28,11 @@
     "TenantId": "nebula",
     "TenantName": "Nebula",
     "ClientId": "nebula-portal"
+  },
+  {
+    "TenantMappingId": "4c4b81d1-d1f0-43dc-85ff-8ed59397dcc1",
+    "TenantId": "nebula",
+    "TenantName": "Nebula",
+    "ClientId": "nebula-api-client"
   }
 ]

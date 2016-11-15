@@ -25,13 +25,13 @@ namespace Iam.Identity.Tenant
         [Conditional("DEBUG")]
         private static void SeedTestData(TenantContext context)
         {
-            if (context.Users.Any(f => f.UserName == AppSettings.SeedUserName))
+            if (context.Users.Any(f => f.UserName == context.CacheKey))
                 return;
 
             var user = new IamUser
             {
                 Id = GuidCombGenerator.Generate().ToString(),
-                UserName = AppSettings.SeedUserName
+                UserName = context.CacheKey
             };
 
             var manager = new TenantUserManager(new TenantUserStore(context));

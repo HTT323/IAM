@@ -60,7 +60,8 @@
       "openid",
       "profile",
       "email",
-      "role"
+      "role",
+      "nebula-api-scope"
     ]
   }
 ]
