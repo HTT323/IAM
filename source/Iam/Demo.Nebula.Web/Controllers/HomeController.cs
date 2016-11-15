@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using IdentityModel.Client;
 using Newtonsoft.Json.Linq;
 
 #endregion
@@ -34,6 +35,11 @@ namespace Demo.Nebula.Web.Controllers
                 throw new InvalidOperationException();
 
             var accessToken = user.Claims.First(f => f.Type == "access_token").Value;
+
+            var uic = new UserInfoClient(new Uri("https://auth.iam.dev:44300/connect/userinfo"), accessToken);
+
+            var ui = await uic.GetAsync();
+
             var httpClient = new HttpClient();
 
             httpClient.SetBearerToken(accessToken);

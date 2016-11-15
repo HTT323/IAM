@@ -72,8 +72,8 @@
       <HintPath>..\packages\AntiXSS.4.3.0\lib\net40\HtmlSanitizationLibrary.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="IdentityModel, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\IdentityModel.2.0.1\lib\net45\IdentityModel.dll</HintPath>
+    <Reference Include="IdentityModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IdentityModel.1.9.2\lib\net45\IdentityModel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="IdentityServer3, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -122,7 +122,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Serilog.Sinks.File, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.Sinks.File.3.1.0\lib\net45\Serilog.Sinks.File.dll</HintPath>
+      <HintPath>..\packages\Serilog.Sinks.File.3.1.1\lib\net45\Serilog.Sinks.File.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Serilog.Sinks.RollingFile, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
