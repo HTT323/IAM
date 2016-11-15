@@ -1,5 +1,7 @@
 ﻿#region
 
+using System.Collections.Generic;
+using System.IdentityModel.Tokens;
 using System.Web.Http;
 using Demo.Nebula.Api;
 using IdentityServer3.AccessTokenValidation;
@@ -18,6 +20,8 @@ namespace Demo.Nebula.Api
         [UsedImplicitly]
         public void Configuration(IAppBuilder app)
         {
+            JwtSecurityTokenHandler.InboundClaimTypeMap = new Dictionary<string, string>();
+
             app.UseIdentityServerBearerTokenAuthentication(
                 new IdentityServerBearerTokenAuthenticationOptions
                 {

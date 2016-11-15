@@ -22,6 +22,13 @@ namespace Iam.Identity.Tenant
             base.Seed(context);
         }
 
+        /// <summary>
+        ///     Seed data with the following format:
+        ///     Username: {tenant} e.g. nebula
+        ///     Password: {Tenant}123# e.g. Nebula123#
+        ///     Role: {Tenant} Administrator e.g. Nebula Administrator
+        /// </summary>
+        /// <param name="context"></param>
         [Conditional("DEBUG")]
         private static void SeedTestData(TenantContext context)
         {
@@ -40,7 +47,7 @@ namespace Iam.Identity.Tenant
 
             manager.AddClaim(
                 user.Id,
-                new Claim(Constants.ClaimTypes.Role, AppSettings.IamAdministratorRole));
+                new Claim(Constants.ClaimTypes.Role, $"{ConvertToProper(context.CacheKey)} Administrator"));
         }
 
         private static string ConvertToProper(string text)

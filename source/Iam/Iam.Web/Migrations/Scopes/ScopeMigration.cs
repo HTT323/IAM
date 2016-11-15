@@ -50,7 +50,11 @@ namespace Iam.Web.Migrations.Scopes
                 Name = "nebula-api-scope",
                 Type = ScopeType.Resource,
                 DisplayName = "Nebula API Scope",
-                Description = "Access to Nebula API"
+                Description = "Access to Nebula API",
+                Claims = new List<ScopeClaim>
+                {
+                    new ScopeClaim(Constants.ClaimTypes.Role)
+                }
             });
         }
     }

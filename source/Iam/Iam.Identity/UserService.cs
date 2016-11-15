@@ -125,14 +125,20 @@ namespace Iam.Identity
                 throw new ArgumentNullException(nameof(subject));
 
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
+            var tenantKey = tenant?.Value;
 
-            if (tenant == null)
+            if (ctx.Subject.Identity.AuthenticationType != Constants.PrimaryAuthenticationType)
+            {
+                tenantKey = _tenantService.GetClientMapping(ctx.Client.ClientId).TenantId;
+            }
+
+            if (tenantKey == null)
             {
                 await base.GetProfileDataAsync(ctx);
                 return;
             }
 
-            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
+            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantKey;
 
             var key = subject.GetSubjectId();
             var acct = await _tenantUserManager.FindByIdAsync(key);
@@ -156,21 +162,25 @@ namespace Iam.Identity
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
             var subject = ctx.Subject;
-
-            // TODO: Check identity authentication type: idsrv / tokenvalidator!
-
+            
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));
 
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
+            var tenantKey = tenant?.Value;
 
-            if (tenant == null)
+            if (ctx.Subject.Identity.AuthenticationType != Constants.PrimaryAuthenticationType)
+            {
+                tenantKey = _tenantService.GetClientMapping(ctx.Client.ClientId).TenantId;
+            }
+
+            if (tenantKey == null)
             {
                 await base.IsActiveAsync(ctx);
                 return;
             }
 
-            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant.Value;
+            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantKey;
             
             var key = subject.GetSubjectId();
             var acct = await _tenantUserManager.FindByIdAsync(key);

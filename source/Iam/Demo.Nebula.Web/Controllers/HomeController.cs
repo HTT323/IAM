@@ -21,8 +21,19 @@ namespace Demo.Nebula.Web.Controllers
         }
 
         [Authorize]
-        public ActionResult Claims()
+        public async Task<ActionResult> Claims()
         {
+            var user = User as ClaimsPrincipal;
+
+            if (user == null)
+                throw new InvalidOperationException();
+
+            var accessToken = user.Claims.First(f => f.Type == "access_token").Value;
+            var uic = new UserInfoClient(new Uri("https://auth.iam.dev:44300/connect/userinfo"), accessToken);
+            var ui = await uic.GetAsync();
+
+            ViewBag.Json = ui.JsonObject;
+
             return View();
         }
 
@@ -35,11 +46,6 @@ namespace Demo.Nebula.Web.Controllers
                 throw new InvalidOperationException();
 
             var accessToken = user.Claims.First(f => f.Type == "access_token").Value;
-
-            var uic = new UserInfoClient(new Uri("https://auth.iam.dev:44300/connect/userinfo"), accessToken);
-
-            var ui = await uic.GetAsync();
-
             var httpClient = new HttpClient();
 
             httpClient.SetBearerToken(accessToken);
