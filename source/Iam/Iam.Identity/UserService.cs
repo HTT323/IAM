@@ -21,6 +21,16 @@ namespace Iam.Identity
     {
         private readonly TenantUserManager _tenantUserManager;
         private readonly TenantService _tenantService;
+
+        protected override Task<IEnumerable<Claim>> GetClaimsFromAccount(IamUser user)
+        {
+            return base.GetClaimsFromAccount(user);
+        }
+
+        protected override Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
+        {
+            return base.GetClaimsForAuthenticateResult(user);
+        }
         
         public UserService(IdsUserManager userManager, TenantUserManager tenantUserManager, TenantService tenantService)
             : base(userManager)
@@ -146,6 +156,8 @@ namespace Iam.Identity
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
             var subject = ctx.Subject;
+
+            // TODO: Check identity authentication type: idsrv / tokenvalidator!
 
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));
