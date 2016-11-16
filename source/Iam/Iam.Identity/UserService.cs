@@ -19,8 +19,18 @@ namespace Iam.Identity
     [UsedImplicitly]
     public class UserService : AspNetIdentityUserService<IamUser, string>
     {
-        private readonly TenantUserManager _tenantUserManager;
         private readonly TenantService _tenantService;
+        private readonly TenantUserManager _tenantUserManager;
+
+        public UserService(
+            IdsUserManager userManager,
+            TenantUserManager tenantUserManager,
+            TenantService tenantService)
+            : base(userManager)
+        {
+            _tenantUserManager = tenantUserManager;
+            _tenantService = tenantService;
+        }
 
         protected override Task<IEnumerable<Claim>> GetClaimsFromAccount(IamUser user)
         {
@@ -30,13 +40,6 @@ namespace Iam.Identity
         protected override Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
         {
             return base.GetClaimsForAuthenticateResult(user);
-        }
-        
-        public UserService(IdsUserManager userManager, TenantUserManager tenantUserManager, TenantService tenantService)
-            : base(userManager)
-        {
-            _tenantUserManager = tenantUserManager;
-            _tenantService = tenantService;
         }
 
         public override async Task AuthenticateLocalAsync(LocalAuthenticationContext ctx)
@@ -99,7 +102,8 @@ namespace Iam.Identity
 
                         if (result == null)
                         {
-                            var claims = await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantClaim);
+                            var claims =
+                                await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantClaim);
 
                             result =
                                 new AuthenticateResult(
@@ -120,7 +124,7 @@ namespace Iam.Identity
         public override async Task GetProfileDataAsync(ProfileDataRequestContext ctx)
         {
             var subject = ctx.Subject;
-            
+
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));
 
@@ -162,7 +166,7 @@ namespace Iam.Identity
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
             var subject = ctx.Subject;
-            
+
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));
 
@@ -181,7 +185,7 @@ namespace Iam.Identity
             }
 
             _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantKey;
-            
+
             var key = subject.GetSubjectId();
             var acct = await _tenantUserManager.FindByIdAsync(key);
 
@@ -191,7 +195,9 @@ namespace Iam.Identity
             {
                 if (EnableSecurityStamp && _tenantUserManager.SupportsUserSecurityStamp)
                 {
-                    var securityStamp = subject.Claims.Where(x => x.Type == "security_stamp").Select(x => x.Value).SingleOrDefault();
+                    var securityStamp =
+                        subject.Claims.Where(x => x.Type == "security_stamp")
+                            .Select(x => x.Value).SingleOrDefault();
 
                     if (securityStamp != null)
                     {
@@ -224,8 +230,13 @@ namespace Iam.Identity
                 nameClaim = claimsList.FirstOrDefault(x => x.Type == DisplayNameClaimType);
             }
 
-            if (nameClaim == null) nameClaim = claimsList.FirstOrDefault(x => x.Type == Constants.ClaimTypes.Name);
-            if (nameClaim == null) nameClaim = claimsList.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+            if (nameClaim == null)
+                nameClaim = claimsList
+                    .FirstOrDefault(x => x.Type == Constants.ClaimTypes.Name);
+
+            if (nameClaim == null)
+                nameClaim = claimsList
+                    .FirstOrDefault(x => x.Type == ClaimTypes.Name);
 
             return nameClaim != null ? nameClaim.Value : user.UserName;
         }
@@ -286,7 +297,7 @@ namespace Iam.Identity
 
         private async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(
             TenantUserManager tenantUserManager,
-            IamUser user, 
+            IamUser user,
             string tenant)
         {
             var claims = new List<Claim>();
