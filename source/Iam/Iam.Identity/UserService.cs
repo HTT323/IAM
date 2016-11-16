@@ -46,20 +46,16 @@ namespace Iam.Identity
         {
             var clientId = ctx.SignInMessage.ClientId;
             var tenant = ctx.SignInMessage.Tenant;
+            
+            string tenantSchema;
 
             if (clientId == AppSettings.IamClientId && tenant == AppSettings.AdminDomain)
             {
-                await base.AuthenticateLocalAsync(ctx);
-                return;
+                tenantSchema = AppSettings.AdminDomain;
             }
-
-            string tenantClaim;
-
-            if (clientId == AppSettings.IamClientId && tenant != AppSettings.AdminDomain)
+            else if (clientId == AppSettings.IamClientId && tenant != AppSettings.AdminDomain)
             {
-                _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenant;
-
-                tenantClaim = tenant;
+                tenantSchema = tenant;
             }
             else
             {
@@ -68,10 +64,10 @@ namespace Iam.Identity
                 if (mapping == null)
                     throw new InvalidOperationException("Invalid tenant mapping");
 
-                _tenantUserManager.TenantUserStore.TenantContext.CacheKey = mapping.TenantId;
-
-                tenantClaim = mapping.TenantId;
+                tenantSchema = mapping.TenantId;
             }
+
+            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantSchema;
 
             var username = ctx.UserName;
             var password = ctx.Password;
@@ -103,7 +99,7 @@ namespace Iam.Identity
                         if (result == null)
                         {
                             var claims =
-                                await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantClaim);
+                                await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantSchema);
 
                             result =
                                 new AuthenticateResult(
