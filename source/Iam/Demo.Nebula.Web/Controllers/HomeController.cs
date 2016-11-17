@@ -46,9 +46,31 @@ namespace Demo.Nebula.Web.Controllers
                 throw new InvalidOperationException();
 
             var accessToken = user.Claims.First(f => f.Type == "access_token").Value;
+
             var httpClient = new HttpClient();
 
             httpClient.SetBearerToken(accessToken);
+
+            var json = await httpClient.GetStringAsync("https://localhost:44330/identity");
+
+            ViewBag.Json = JArray.Parse(json).ToString();
+
+            return View();
+        }
+
+        [Authorize]
+        public async Task<ActionResult> SecuredApiCcViewer()
+        {
+            var client = new TokenClient(
+                "https://auth.iam.dev:44300/connect/token",
+                "nebula-service",
+                "nebula-api-access");
+
+            var ccToken = await client.RequestClientCredentialsAsync("nebula-api-scope");
+
+            var httpClient = new HttpClient();
+
+            httpClient.SetBearerToken(ccToken.AccessToken);
 
             var json = await httpClient.GetStringAsync("https://localhost:44330/identity");
 

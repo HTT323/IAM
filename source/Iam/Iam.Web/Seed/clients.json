@@ -63,5 +63,19 @@
       "role",
       "nebula-api-scope"
     ]
+  },
+  {
+    "Enabled": true,
+    "ClientId": "nebula-service",
+    "ClientName": "Nebula Service Account",
+    "Flow": 3,
+    "ClientSecrets": [
+      {
+        "Value": "tgKDnzZzxFO6aOxDf1aynkPHnzNov3whGQWQc3UVV74="
+      }
+    ],
+    "AllowedScopes": [
+      "nebula-api-scope"
+    ]
   }
 ]
