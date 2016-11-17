@@ -13,24 +13,17 @@ using Constants = IdentityServer3.Core.Constants;
 
 namespace Iam.Identity.Tenant
 {
-    public class TenantUserInitializer : CreateDatabaseIfNotExists<TenantContext>
+    public class UserInitializer : CreateDatabaseIfNotExists<IamContext>
     {
-        protected override void Seed(TenantContext context)
+        protected override void Seed(IamContext context)
         {
             SeedTestData(context);
 
             base.Seed(context);
         }
 
-        /// <summary>
-        ///     Seed data with the following format:
-        ///     Username: {tenant} e.g. nebula
-        ///     Password: {Tenant}123# e.g. Nebula123#
-        ///     Role: {Tenant} Administrator e.g. Nebula Administrator
-        /// </summary>
-        /// <param name="context"></param>
         [Conditional("DEBUG")]
-        private static void SeedTestData(TenantContext context)
+        private static void SeedTestData(IamContext context)
         {
             if (context.Users.Any(f => f.UserName == context.CacheKey))
                 return;
@@ -41,13 +34,13 @@ namespace Iam.Identity.Tenant
                 UserName = context.CacheKey
             };
 
-            var manager = new TenantUserManager(new TenantUserStore(context));
+            var manager = new IamUserManager(new IamUserStore(context));
 
             manager.Create(user, $"{ConvertToProper(context.CacheKey)}123#");
 
             manager.AddClaim(
                 user.Id,
-                new Claim(Constants.ClaimTypes.Role, $"{ConvertToProper(context.CacheKey)} Administrator"));
+                new Claim(Constants.ClaimTypes.Role, "Administrator"));
         }
 
         private static string ConvertToProper(string text)

@@ -8,11 +8,14 @@ using Microsoft.AspNet.Identity;
 namespace Iam.Identity
 {
     [UsedImplicitly]
-    public class IdsUserManager : UserManager<IamUser>
+    public class IamUserManager : UserManager<IamUser>
     {
-        public IdsUserManager(IdsUserStore store)
+        internal IamUserStore IdsUserStore { get; }
+
+        public IamUserManager(IamUserStore store)
             : base(store)
         {
+            IdsUserStore = store;
         }
     }
 }

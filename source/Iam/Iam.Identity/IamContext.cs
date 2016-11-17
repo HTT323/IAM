@@ -12,9 +12,9 @@ using Microsoft.AspNet.Identity.EntityFramework;
 namespace Iam.Identity
 {
     [UsedImplicitly]
-    public class TenantContext : IdentityDbContext<IamUser>, IDbModelCacheKeyProvider
+    public class IamContext : IdentityDbContext<IamUser>, IDbModelCacheKeyProvider
     {
-        public TenantContext() : base(AppSettings.IamConnectionString)
+        public IamContext() : base(AppSettings.IamConnectionString)
         {
         }
 
@@ -25,7 +25,7 @@ namespace Iam.Identity
             if (!string.IsNullOrWhiteSpace(CacheKey))
             {
                 modelBuilder.HasDefaultSchema(CacheKey);
-                Database.SetInitializer(new TenantUserInitializer());
+                Database.SetInitializer(new UserInitializer());
             }
 
             base.OnModelCreating(modelBuilder);

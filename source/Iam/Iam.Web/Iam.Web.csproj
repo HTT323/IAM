@@ -275,11 +275,6 @@
       <DependentUpon>201611131001585_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\TenantMappings\TenantMappingMigration.cs" />
-    <Compile Include="Migrations\Users\201611051355232_Initial.cs" />
-    <Compile Include="Migrations\Users\201611051355232_Initial.Designer.cs">
-      <DependentUpon>201611051355232_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Users\UserMigration.cs" />
     <Compile Include="Services\Bundle.cs" />
     <Compile Include="Services\Configurations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -324,7 +319,6 @@
     <Content Include="Seed\scopes.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Filters\" />
     <Folder Include="Models\" />
   </ItemGroup>
@@ -350,9 +344,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\TenantMappings\201611131001585_Initial.resx">
       <DependentUpon>201611131001585_Initial.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\Users\201611051355232_Initial.resx">
-      <DependentUpon>201611051355232_Initial.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

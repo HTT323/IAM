@@ -8,18 +8,6 @@ namespace Iam.Common
 {
     public static class AppSettings
     {
-        public const string IamAdministratorRole = "IAM Administrator";
-
-        #region Seed Data for IAM
-
-        public static readonly string SeedUserName =
-            ConfigurationManager.AppSettings["Seed.UserName"];
-
-        public static readonly string SeedPassword =
-            ConfigurationManager.AppSettings["Seed.Password"];
-
-        #endregion
-
         #region IAM General Settings
 
         public static readonly string IamConnectionString =

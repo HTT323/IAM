@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Iam.Common;
 using IdentityServer3.AspNetIdentity;
 using IdentityServer3.Core;
-using IdentityServer3.Core.Extensions;
 using IdentityServer3.Core.Models;
 using JetBrains.Annotations;
 
@@ -20,42 +19,24 @@ namespace Iam.Identity
     public class UserService : AspNetIdentityUserService<IamUser, string>
     {
         private readonly TenantService _tenantService;
-        private readonly TenantUserManager _tenantUserManager;
+        private string _schema;
 
         public UserService(
-            IdsUserManager userManager,
-            TenantUserManager tenantUserManager,
+            IamUserManager userManager,
             TenantService tenantService)
             : base(userManager)
         {
-            _tenantUserManager = tenantUserManager;
             _tenantService = tenantService;
-        }
-
-        protected override Task<IEnumerable<Claim>> GetClaimsFromAccount(IamUser user)
-        {
-            return base.GetClaimsFromAccount(user);
-        }
-
-        protected override Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
-        {
-            return base.GetClaimsForAuthenticateResult(user);
         }
 
         public override async Task AuthenticateLocalAsync(LocalAuthenticationContext ctx)
         {
             var clientId = ctx.SignInMessage.ClientId;
             var tenant = ctx.SignInMessage.Tenant;
-            
-            string tenantSchema;
 
-            if (clientId == AppSettings.IamClientId && tenant == AppSettings.AdminDomain)
+            if (clientId == AppSettings.IamClientId)
             {
-                tenantSchema = AppSettings.AdminDomain;
-            }
-            else if (clientId == AppSettings.IamClientId && tenant != AppSettings.AdminDomain)
-            {
-                tenantSchema = tenant;
+                _schema = tenant;
             }
             else
             {
@@ -64,257 +45,63 @@ namespace Iam.Identity
                 if (mapping == null)
                     throw new InvalidOperationException("Invalid tenant mapping");
 
-                tenantSchema = mapping.TenantId;
+                _schema = mapping.TenantId;
             }
 
-            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantSchema;
+            ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = _schema;
 
-            var username = ctx.UserName;
-            var password = ctx.Password;
-            var message = ctx.SignInMessage;
-
-            ctx.AuthenticateResult = null;
-
-            if (_tenantUserManager.SupportsUserPassword)
-            {
-                var user = await FindUserAsync(_tenantUserManager, username);
-
-                if (user != null)
-                {
-                    if (_tenantUserManager.SupportsUserLockout &&
-                        await _tenantUserManager.IsLockedOutAsync(user.Id))
-                    {
-                        return;
-                    }
-
-                    if (await _tenantUserManager.CheckPasswordAsync(user, password))
-                    {
-                        if (_tenantUserManager.SupportsUserLockout)
-                        {
-                            await _tenantUserManager.ResetAccessFailedCountAsync(user.Id);
-                        }
-
-                        var result = await PostAuthenticateLocalAsync(user, message);
-
-                        if (result == null)
-                        {
-                            var claims =
-                                await GetClaimsForAuthenticateResult(_tenantUserManager, user, tenantSchema);
-
-                            result =
-                                new AuthenticateResult(
-                                    user.Id,
-                                    await GetDisplayNameForAccountAsync(_tenantUserManager, user.Id), claims);
-                        }
-
-                        ctx.AuthenticateResult = result;
-                    }
-                    else if (_tenantUserManager.SupportsUserLockout)
-                    {
-                        await _tenantUserManager.AccessFailedAsync(user.Id);
-                    }
-                }
-            }
+            await base.AuthenticateLocalAsync(ctx);
         }
 
         public override async Task GetProfileDataAsync(ProfileDataRequestContext ctx)
         {
-            var subject = ctx.Subject;
+            ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
+                GetTenant(ctx.Subject, ctx.Client.ClientId);
 
-            if (subject == null)
-                throw new ArgumentNullException(nameof(subject));
-
-            var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
-            var tenantKey = tenant?.Value;
-
-            if (ctx.Subject.Identity.AuthenticationType != Constants.PrimaryAuthenticationType)
-            {
-                tenantKey = _tenantService.GetClientMapping(ctx.Client.ClientId).TenantId;
-            }
-
-            if (tenantKey == null)
-            {
-                await base.GetProfileDataAsync(ctx);
-                return;
-            }
-
-            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantKey;
-
-            var key = subject.GetSubjectId();
-            var acct = await _tenantUserManager.FindByIdAsync(key);
-
-            if (acct == null)
-            {
-                throw new ArgumentException("Invalid subject identifier");
-            }
-
-            var claims = await GetClaimsFromAccount(_tenantUserManager, acct);
-            var requestedClaimTypes = ctx.RequestedClaimTypes.ToList();
-
-            if (requestedClaimTypes.Any())
-            {
-                claims = claims.Where(x => requestedClaimTypes.Contains(x.Type));
-            }
-
-            ctx.IssuedClaims = claims;
+            await base.GetProfileDataAsync(ctx);
         }
 
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
-            var subject = ctx.Subject;
+            ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
+                GetTenant(ctx.Subject, ctx.Client.ClientId);
 
+            await base.IsActiveAsync(ctx);
+        }
+
+        private string GetTenant(ClaimsPrincipal subject, string clientId)
+        {
             if (subject == null)
                 throw new ArgumentNullException(nameof(subject));
 
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
             var tenantKey = tenant?.Value;
 
-            if (ctx.Subject.Identity.AuthenticationType != Constants.PrimaryAuthenticationType)
+            if (subject.Identity.AuthenticationType != Constants.PrimaryAuthenticationType)
             {
-                tenantKey = _tenantService.GetClientMapping(ctx.Client.ClientId).TenantId;
+                tenantKey = _tenantService.GetClientMapping(clientId).TenantId;
             }
 
             if (tenantKey == null)
-            {
-                await base.IsActiveAsync(ctx);
-                return;
-            }
+                throw new InvalidOperationException();
 
-            _tenantUserManager.TenantUserStore.TenantContext.CacheKey = tenantKey;
-
-            var key = subject.GetSubjectId();
-            var acct = await _tenantUserManager.FindByIdAsync(key);
-
-            ctx.IsActive = false;
-
-            if (acct != null)
-            {
-                if (EnableSecurityStamp && _tenantUserManager.SupportsUserSecurityStamp)
-                {
-                    var securityStamp =
-                        subject.Claims.Where(x => x.Type == "security_stamp")
-                            .Select(x => x.Value).SingleOrDefault();
-
-                    if (securityStamp != null)
-                    {
-                        var dbSecurityStamp = await _tenantUserManager.GetSecurityStampAsync(key);
-
-                        if (dbSecurityStamp != securityStamp)
-                        {
-                            return;
-                        }
-                    }
-                }
-
-                ctx.IsActive = true;
-            }
+            return tenantKey;
         }
 
-        private async Task<string> GetDisplayNameForAccountAsync(
-            TenantUserManager tenantUserManager,
-            string userId)
-        {
-            var user = await tenantUserManager.FindByIdAsync(userId);
-            var claims = await GetClaimsFromAccount(tenantUserManager, user);
-
-            Claim nameClaim = null;
-
-            var claimsList = claims as IList<Claim> ?? claims.ToList();
-
-            if (DisplayNameClaimType != null)
-            {
-                nameClaim = claimsList.FirstOrDefault(x => x.Type == DisplayNameClaimType);
-            }
-
-            if (nameClaim == null)
-                nameClaim = claimsList
-                    .FirstOrDefault(x => x.Type == Constants.ClaimTypes.Name);
-
-            if (nameClaim == null)
-                nameClaim = claimsList
-                    .FirstOrDefault(x => x.Type == ClaimTypes.Name);
-
-            return nameClaim != null ? nameClaim.Value : user.UserName;
-        }
-
-        private static async Task<IEnumerable<Claim>> GetClaimsFromAccount(
-            TenantUserManager tenantUserManager,
-            IamUser user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(Constants.ClaimTypes.Subject, user.Id),
-                new Claim(Constants.ClaimTypes.PreferredUserName, user.UserName)
-            };
-
-            if (tenantUserManager.SupportsUserEmail)
-            {
-                var email = await tenantUserManager.GetEmailAsync(user.Id);
-
-                if (!string.IsNullOrWhiteSpace(email))
-                {
-                    claims.Add(new Claim(Constants.ClaimTypes.Email, email));
-
-                    var verified = await tenantUserManager.IsEmailConfirmedAsync(user.Id);
-
-                    claims.Add(new Claim(Constants.ClaimTypes.EmailVerified, verified ? "true" : "false"));
-                }
-            }
-
-            if (tenantUserManager.SupportsUserPhoneNumber)
-            {
-                var phone = await tenantUserManager.GetPhoneNumberAsync(user.Id);
-
-                if (!string.IsNullOrWhiteSpace(phone))
-                {
-                    claims.Add(new Claim(Constants.ClaimTypes.PhoneNumber, phone));
-
-                    var verified = await tenantUserManager.IsPhoneNumberConfirmedAsync(user.Id);
-
-                    claims.Add(new Claim(Constants.ClaimTypes.PhoneNumberVerified, verified ? "true" : "false"));
-                }
-            }
-
-            if (tenantUserManager.SupportsUserClaim)
-            {
-                claims.AddRange(await tenantUserManager.GetClaimsAsync(user.Id));
-            }
-
-            if (!tenantUserManager.SupportsUserRole) return claims;
-
-            var roleClaims =
-                from role in await tenantUserManager.GetRolesAsync(user.Id)
-                select new Claim(Constants.ClaimTypes.Role, role);
-
-            claims.AddRange(roleClaims);
-
-            return claims;
-        }
-
-        private async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(
-            TenantUserManager tenantUserManager,
-            IamUser user,
-            string tenant)
+        protected override async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
         {
             var claims = new List<Claim>();
 
-            if (!EnableSecurityStamp || !tenantUserManager.SupportsUserSecurityStamp) return claims;
+            if (!EnableSecurityStamp || !userManager.SupportsUserSecurityStamp) return claims;
 
-            var stamp = await tenantUserManager.GetSecurityStampAsync(user.Id);
+            var stamp = await userManager.GetSecurityStampAsync(user.Id);
 
             if (string.IsNullOrWhiteSpace(stamp)) return claims;
 
             claims.Add(new Claim("security_stamp", stamp));
-            claims.Add(new Claim("tenant_mapping", tenant));
+            claims.Add(new Claim("tenant_mapping", _schema));
 
             return claims;
-        }
-
-        private static async Task<IamUser> FindUserAsync(
-            TenantUserManager tenantUserManager,
-            string username)
-        {
-            return await tenantUserManager.FindByNameAsync(username);
         }
     }
 }

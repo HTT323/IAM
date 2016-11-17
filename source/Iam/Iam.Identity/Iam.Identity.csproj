@@ -103,18 +103,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdminContext.cs" />
-    <Compile Include="IdsContext.cs" />
+    <Compile Include="IamContext.cs" />
     <Compile Include="IamUser.cs" />
-    <Compile Include="IdsUserManager.cs" />
-    <Compile Include="IdsUserStore.cs" />
-    <Compile Include="TenantContext.cs" />
+    <Compile Include="IamUserManager.cs" />
+    <Compile Include="IamUserStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TenantService.cs" />
-    <Compile Include="TenantUserManager.cs" />
-    <Compile Include="TenantUserStore.cs" />
     <Compile Include="Tenant\TenantMapping.cs" />
     <Compile Include="Tenant\TenantMappingConfiguration.cs" />
-    <Compile Include="Tenant\TenantUserInitializer.cs" />
+    <Compile Include="Tenant\UserInitializer.cs" />
     <Compile Include="UserService.cs" />
   </ItemGroup>
   <ItemGroup>

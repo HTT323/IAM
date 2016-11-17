@@ -8,7 +8,6 @@ using Iam.Identity;
 using Iam.Web.Migrations.Clients;
 using Iam.Web.Migrations.Scopes;
 using Iam.Web.Migrations.TenantMappings;
-using Iam.Web.Migrations.Users;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
 using IdentityServer3.EntityFramework;
@@ -43,9 +42,6 @@ namespace Iam.Web.Services
         /// <returns></returns>
         public static IAppBuilder UseMigrations(this IAppBuilder app, string connectionString)
         {
-            Database.SetInitializer(
-                new MigrateDatabaseToLatestVersion<IdsContext, UserMigration>(connectionString));
-
             Database.SetInitializer(
                 new MigrateDatabaseToLatestVersion<ScopeConfigurationDbContext, ScopeMigration>(connectionString));
 
@@ -101,14 +97,10 @@ namespace Iam.Web.Services
         {
             factory.UserService = new Registration<IUserService, UserService>();
 
-            factory.Register(new Registration<IdsContext>());
-            factory.Register(new Registration<IdsUserStore>());
-            factory.Register(new Registration<IdsUserManager>());
-
-            factory.Register(new Registration<TenantContext>());
-            factory.Register(new Registration<TenantUserStore>());
-            factory.Register(new Registration<TenantUserManager>());
-
+            factory.Register(new Registration<IamContext>());
+            factory.Register(new Registration<IamUserStore>());
+            factory.Register(new Registration<IamUserManager>());
+            
             return factory;
         }
     }
