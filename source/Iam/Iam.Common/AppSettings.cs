@@ -28,6 +28,9 @@ namespace Iam.Common
         public static readonly string IamHomeFullUrl =
             ConfigurationManager.AppSettings["IamHomeFullUrl"];
 
+        public static readonly string IamAdminFullUrl =
+            ConfigurationManager.AppSettings["IamAdminFullUrl"];
+
         #endregion
 
         #region Identity Server
