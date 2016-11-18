@@ -48,6 +48,7 @@
     <Compile Include="Contracts\ICache.cs" />
     <Compile Include="Contracts\IAdminContext.cs" />
     <Compile Include="Contracts\IModel.cs" />
+    <Compile Include="Ensure.cs" />
     <Compile Include="GuidCombGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

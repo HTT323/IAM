@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Iam.Common;
 using JetBrains.Annotations;
 using Microsoft.Owin;
 
@@ -22,8 +23,7 @@ namespace Iam.Web.Middlewares
         {
             var parts = context.Request.Host.Value.Split('.');
 
-            if (parts.Length != 3)
-                throw new InvalidOperationException();
+            Ensure.Equal(parts.Length, 3);
 
             var sd = parts[0].ToLower();
 

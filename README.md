@@ -77,3 +77,6 @@ Apply SSL binding > netsh http add sslcert ipport=0.0.0.0:44310 appid={214124cd-
 Remove current SSL binding > netsh http delete sslcert ipport=0.0.0.0:44320
 Apply SSL binding > netsh http add sslcert ipport=0.0.0.0:44320 appid={214124cd-d05b-4309-9af9-9caa44b2b74a} certhash=THUMBPRINT_OF_NEBULA_PORTAL_CERT
 
+## ConfigWatch
+
+- Make sure to set write permission to this folder (to enable 'reconfigure' OWIN)

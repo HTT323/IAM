@@ -23,18 +23,21 @@ namespace Iam.Web.Middlewares
     public class ReconfigureIdsMiddleware
     {
         private AppFunc _dynamicAppFunc;
+        private string _file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch", "config.ids");
+        private DateTime? _lastReconfigureDateUtc;
+        private string _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch");
 
         public ReconfigureIdsMiddleware(AppFunc next)
         {
             var fileSystemWatcher =
-                new FileSystemWatcher(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch"))
+                new FileSystemWatcher(_path)
                 {
                     EnableRaisingEvents = true
                 };
 
-            fileSystemWatcher.Changed += (sender, args) => ConfigurePipeline(sender, args, next);
+            fileSystemWatcher.Changed += (_, __) => ConfigurePipeline(next);
 
-            ConfigurePipeline(null, null, next);
+            ConfigurePipeline(next);
         }
 
         public Task Invoke(IDictionary<string, object> environment)
@@ -42,9 +45,17 @@ namespace Iam.Web.Middlewares
             return _dynamicAppFunc(environment);
         }
 
-        private void ConfigurePipeline(object sender, FileSystemEventArgs args, AppFunc next)
+        private void ConfigurePipeline(AppFunc next)
         {
-            // TODO: Handle multiple events being triggered by FileSystemWatcher.
+            EnsureConfigIds();
+
+            var stamp = File.GetLastWriteTimeUtc(_file);
+
+            if (_lastReconfigureDateUtc != null && _lastReconfigureDateUtc == stamp)
+            {
+                return;
+            }
+
             var app = new AppBuilder();
 
             app.UseIdentityServer(new IdentityServerOptions
@@ -54,12 +65,25 @@ namespace Iam.Web.Middlewares
                 RequireSsl = true,
                 Factory = new IdentityServerServiceFactory().Configure(),
                 EnableWelcomePage = false,
-                AuthenticationOptions = new AuthenticationOptions { RememberLastUsername = true }
+                AuthenticationOptions = new AuthenticationOptions {RememberLastUsername = true}
             });
 
             app.Run(ctx => next(ctx.Environment));
 
+            _lastReconfigureDateUtc = stamp;
+
             _dynamicAppFunc = app.Build();
+        }
+
+        private void EnsureConfigIds()
+        {
+            if (File.Exists(_file))
+                return;
+
+            using (var sw = File.CreateText(_file))
+            {
+                sw.Write(DateTime.UtcNow);
+            }
         }
 
         private static X509Certificate2 LoadCertificate()

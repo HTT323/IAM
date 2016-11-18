@@ -71,9 +71,8 @@ namespace Iam.Identity
 
         private string GetTenant(ClaimsPrincipal subject, string clientId)
         {
-            if (subject == null)
-                throw new ArgumentNullException(nameof(subject));
-
+            Ensure.Argument.NotNull(subject, nameof(subject));
+            
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
             var tenantKey = tenant?.Value;
 

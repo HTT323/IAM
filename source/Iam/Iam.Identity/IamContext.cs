@@ -22,11 +22,10 @@ namespace Iam.Identity
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            if (!string.IsNullOrWhiteSpace(CacheKey))
-            {
-                modelBuilder.HasDefaultSchema(CacheKey);
-                Database.SetInitializer(new UserInitializer());
-            }
+            Ensure.NotNullOrEmpty(CacheKey);
+
+            modelBuilder.HasDefaultSchema(CacheKey);
+            Database.SetInitializer(new UserInitializer());
 
             base.OnModelCreating(modelBuilder);
         }

@@ -3,17 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using Iam.Common;
 using Iam.Web;
 using Iam.Web.Middlewares;
 using Iam.Web.Services;
-using IdentityModel;
 using IdentityServer3.Core;
-using IdentityServer3.Core.Configuration;
 using JetBrains.Annotations;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.Owin;
@@ -39,18 +35,7 @@ namespace Iam.Web
 
             app.Use(typeof(TenantMiddleware));
 
-            app.MapWhen(IsAuthDomain, ids =>
-            {
-                ids.UseIdentityServer(new IdentityServerOptions
-                {
-                    SiteName = AppSettings.IdentityServerSiteName,
-                    SigningCertificate = LoadCertificate(),
-                    RequireSsl = true,
-                    Factory = new IdentityServerServiceFactory().Configure(),
-                    EnableWelcomePage = false,
-                    AuthenticationOptions = new AuthenticationOptions {RememberLastUsername = true}
-                });
-            });
+            app.MapWhen(IsAuthDomain, ids => { ids.Use<ReconfigureIdsMiddleware>(); });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
@@ -85,9 +70,8 @@ namespace Iam.Web
                         {
                             var parts = uri.Host.Split('.');
 
-                            if (parts.Length != 3)
-                                throw new InvalidOperationException();
-
+                            Ensure.Equal(parts.Length, 3);
+                            
                             rto.ProtocolMessage.AcrValues = $"tenant:{parts[0]}";
                         }
 
@@ -115,13 +99,6 @@ namespace Iam.Web
             var sd = context.Get<string>(TenantMiddleware.TenantKey);
 
             return sd != AppSettings.AuthDomain;
-        }
-
-        private X509Certificate2 LoadCertificate()
-        {
-            return X509.LocalMachine.My.SubjectDistinguishedName
-                .Find(AppSettings.CertificateSubject)
-                .FirstOrDefault();
         }
     }
 }
