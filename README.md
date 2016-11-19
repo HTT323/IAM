@@ -88,4 +88,9 @@ Demo User
 identitymgmt@yahoo.com / Demo123#
 
 
+## Important
 
+The ReplyToUrl in OKTA must match the CallbackPath in WsFederationAuthenticationOptions
+
+-> OKTA: https://auth.iam.dev:44300/callback/wsfed1
+-> CallbackPath = new PathString($"/callback/wsfed{wsFed.Id}")

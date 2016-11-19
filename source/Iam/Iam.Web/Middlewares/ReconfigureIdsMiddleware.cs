@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -88,7 +87,7 @@ namespace Iam.Web.Middlewares
 
             _dynamicAppFunc = app.Build();
         }
-        
+
         private void EnsureConfigIds()
         {
             if (File.Exists(_file))
@@ -107,14 +106,6 @@ namespace Iam.Web.Middlewares
                 .FirstOrDefault();
         }
 
-        private class WsFed
-        {
-            public int Id { get; set; }
-            public string Caption { get; set; }
-            public string MetadataAddress { get; set; }
-            public string Realm { get; set; }
-        }
-
         private List<WsFed> GetWsFedProviders()
         {
             return new List<WsFed>
@@ -122,9 +113,18 @@ namespace Iam.Web.Middlewares
                 new WsFed
                 {
                     Id = 1,
-                    Caption = "Single Sign-On",
-                    MetadataAddress = "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
-                    Realm = AppSettings.IdpAuthority
+                    Caption = "OKTA",
+                    MetadataAddress =
+                        "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
+                    Realm = "https://auth.iam.dev:44300"
+                },
+                new WsFed
+                {
+                    Id = 2,
+                    Caption = "ADFS",
+                    MetadataAddress =
+                        "https://dev-947535.oktapreview.com/FederationMetadata/2007-06/exk8ts4xluZ1f46BO0h7/FederationMetadata.xml",
+                    Realm = "https://auth.iam.dev:44300"
                 }
             };
         }
@@ -140,12 +140,21 @@ namespace Iam.Web.Middlewares
                     AuthenticationType = $"wsfed{wsFed.Id}",
                     Caption = wsFed.Caption,
                     SignInAsAuthenticationType = signInAsType,
+                    CallbackPath = new PathString($"/callback/wsfed{wsFed.Id}"),
                     MetadataAddress = wsFed.MetadataAddress,
                     Wtrealm = wsFed.Realm
                 };
 
                 app.UseWsFederationAuthentication(wsf);
             }
+        }
+
+        private class WsFed
+        {
+            public int Id { get; set; }
+            public string Caption { get; set; }
+            public string MetadataAddress { get; set; }
+            public string Realm { get; set; }
         }
     }
 }
