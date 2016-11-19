@@ -80,3 +80,12 @@ Apply SSL binding > netsh http add sslcert ipport=0.0.0.0:44320 appid={214124cd-
 ## ConfigWatch
 
 - Make sure to set write permission to this folder (to enable 'reconfigure' OWIN)
+
+
+## OKTA Login
+
+Demo User
+identitymgmt@yahoo.com / Demo123#
+
+
+

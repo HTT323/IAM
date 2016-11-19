@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Iam.Common;
+using IdentityModel;
 using IdentityServer3.AspNetIdentity;
 using IdentityServer3.Core;
 using IdentityServer3.Core.Models;
@@ -80,12 +81,36 @@ namespace Iam.Identity
             return base.AuthenticateExternalAsync(ctx);
         }
 
+        protected override async Task<AuthenticateResult> UpdateAccountFromExternalClaimsAsync(
+            string userId,
+            string provider, 
+            string providerId, 
+            IEnumerable<Claim> claims)
+        {
+            var list = claims.ToList();
+            var existingClaims = await userManager.GetClaimsAsync(userId);
+            var intersection = existingClaims.Intersect(list, new ClaimComparer());
+            var newClaims = list.Except(intersection, new ClaimComparer());
+
+            foreach (var claim in newClaims)
+            {
+                var result = await userManager.AddClaimAsync(userId, claim);
+
+                if (!result.Succeeded)
+                {
+                    return new AuthenticateResult(result.Errors.First());
+                }
+            }
+
+            return null;
+        }
+
         private string GetTenant(string clientId)
         {
             var tenantKey = _tenantService.GetClientMapping(clientId);
-            
+
             Ensure.NotNull(tenantKey);
-            
+
             return tenantKey.TenantId;
         }
 
@@ -93,7 +118,7 @@ namespace Iam.Identity
         {
             Ensure.Argument.NotNull(subject, nameof(subject));
             Ensure.Argument.NotNullOrEmpty(clientId, nameof(clientId));
-            
+
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
             var tenantKey = tenant?.Value;
 
