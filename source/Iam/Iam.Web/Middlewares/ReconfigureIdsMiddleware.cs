@@ -68,40 +68,21 @@ namespace Iam.Web.Middlewares
                 app.Properties.Add("host.AppName", "IdServerHost");
             }
 
-            app.Map("/identity", ids =>
+            app.UseIdentityServer(new IdentityServerOptions
             {
-                ids.UseIdentityServer(new IdentityServerOptions
-                {
-                    SiteName = AppSettings.IdentityServerSiteName,
-                    SigningCertificate = LoadCertificate(),
-                    RequireSsl = true,
-                    Factory = new IdentityServerServiceFactory().Configure(),
-                    EnableWelcomePage = false,
-                    AuthenticationOptions =
-                        new AuthenticationOptions
-                        {
-                            RememberLastUsername = true,
-                            IdentityProviders = ConfigureIdentityProviders,
-                            EnableAutoCallbackForFederatedSignout = true
-                        }
-                });
+                SiteName = AppSettings.IdentityServerSiteName,
+                SigningCertificate = LoadCertificate(),
+                RequireSsl = true,
+                Factory = new IdentityServerServiceFactory().Configure(),
+                EnableWelcomePage = false,
+                AuthenticationOptions =
+                    new AuthenticationOptions
+                    {
+                        RememberLastUsername = true,
+                        IdentityProviders = ConfigureIdentityProviders,
+                        EnableAutoCallbackForFederatedSignout = true
+                    }
             });
-
-            //app.UseIdentityServer(new IdentityServerOptions
-            //{
-            //    SiteName = AppSettings.IdentityServerSiteName,
-            //    SigningCertificate = LoadCertificate(),
-            //    RequireSsl = true,
-            //    Factory = new IdentityServerServiceFactory().Configure(),
-            //    EnableWelcomePage = false,
-            //    AuthenticationOptions =
-            //        new AuthenticationOptions
-            //        {
-            //            RememberLastUsername = true,
-            //            IdentityProviders = ConfigureIdentityProviders,
-            //            EnableAutoCallbackForFederatedSignout = true
-            //        }
-            //});
 
             app.Run(ctx => next(ctx.Environment));
 
