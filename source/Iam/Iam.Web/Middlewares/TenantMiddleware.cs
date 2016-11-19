@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using System.Threading.Tasks;
 using Iam.Common;
 using JetBrains.Annotations;

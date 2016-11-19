@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -11,7 +12,9 @@ using Iam.Web.Services;
 using IdentityModel;
 using IdentityServer3.Core.Configuration;
 using JetBrains.Annotations;
+using Microsoft.Owin;
 using Microsoft.Owin.Builder;
+using Microsoft.Owin.Security.WsFederation;
 using Owin;
 using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
 
@@ -56,25 +59,55 @@ namespace Iam.Web.Middlewares
                 return;
             }
 
+            _lastReconfigureDateUtc = stamp;
+
             var app = new AppBuilder();
 
-            app.UseIdentityServer(new IdentityServerOptions
+            if (!app.Properties.ContainsKey("host.AppName"))
             {
-                SiteName = AppSettings.IdentityServerSiteName,
-                SigningCertificate = LoadCertificate(),
-                RequireSsl = true,
-                Factory = new IdentityServerServiceFactory().Configure(),
-                EnableWelcomePage = false,
-                AuthenticationOptions = new AuthenticationOptions {RememberLastUsername = true}
+                app.Properties.Add("host.AppName", "IdServerHost");
+            }
+
+            app.Map("/identity", ids =>
+            {
+                ids.UseIdentityServer(new IdentityServerOptions
+                {
+                    SiteName = AppSettings.IdentityServerSiteName,
+                    SigningCertificate = LoadCertificate(),
+                    RequireSsl = true,
+                    Factory = new IdentityServerServiceFactory().Configure(),
+                    EnableWelcomePage = false,
+                    AuthenticationOptions =
+                        new AuthenticationOptions
+                        {
+                            RememberLastUsername = true,
+                            IdentityProviders = ConfigureIdentityProviders,
+                            EnableAutoCallbackForFederatedSignout = true
+                        }
+                });
             });
+
+            //app.UseIdentityServer(new IdentityServerOptions
+            //{
+            //    SiteName = AppSettings.IdentityServerSiteName,
+            //    SigningCertificate = LoadCertificate(),
+            //    RequireSsl = true,
+            //    Factory = new IdentityServerServiceFactory().Configure(),
+            //    EnableWelcomePage = false,
+            //    AuthenticationOptions =
+            //        new AuthenticationOptions
+            //        {
+            //            RememberLastUsername = true,
+            //            IdentityProviders = ConfigureIdentityProviders,
+            //            EnableAutoCallbackForFederatedSignout = true
+            //        }
+            //});
 
             app.Run(ctx => next(ctx.Environment));
 
-            _lastReconfigureDateUtc = stamp;
-
             _dynamicAppFunc = app.Build();
         }
-
+        
         private void EnsureConfigIds()
         {
             if (File.Exists(_file))
@@ -91,6 +124,47 @@ namespace Iam.Web.Middlewares
             return X509.LocalMachine.My.SubjectDistinguishedName
                 .Find(AppSettings.CertificateSubject)
                 .FirstOrDefault();
+        }
+
+        private class WsFed
+        {
+            public int Id { get; set; }
+            public string Caption { get; set; }
+            public string MetadataAddress { get; set; }
+            public string Realm { get; set; }
+        }
+
+        private List<WsFed> GetWsFedProviders()
+        {
+            return new List<WsFed>
+            {
+                new WsFed
+                {
+                    Id = 1,
+                    Caption = "Single Sign-On",
+                    MetadataAddress = "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
+                    Realm = AppSettings.IdpAuthority
+                }
+            };
+        }
+
+        private void ConfigureIdentityProviders(IAppBuilder app, string signInAsType)
+        {
+            var feds = GetWsFedProviders();
+
+            foreach (var wsFed in feds)
+            {
+                var wsf = new WsFederationAuthenticationOptions
+                {
+                    AuthenticationType = $"wsfed{wsFed.Id}",
+                    Caption = wsFed.Caption,
+                    SignInAsAuthenticationType = signInAsType,
+                    MetadataAddress = wsFed.MetadataAddress,
+                    Wtrealm = wsFed.Realm
+                };
+
+                app.UseWsFederationAuthentication(wsf);
+            }
         }
     }
 }

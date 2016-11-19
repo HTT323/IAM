@@ -62,6 +62,13 @@
                                 </div>
                             </fieldset>
                         </form>
+                        <div class="external-providers" ng-show="model.externalProviders">
+                            <ul class="list-inline">
+                                <li ng-repeat="provider in model.externalProviders">
+                                    <a class="btn btn-default" href="{{provider.href}}">{{provider.text}}</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

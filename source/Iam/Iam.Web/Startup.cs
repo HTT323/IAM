@@ -35,7 +35,7 @@ namespace Iam.Web
 
             app.Use(typeof(TenantMiddleware));
 
-            app.MapWhen(IsAuthDomain, ids => { ids.Use<ReconfigureIdsMiddleware>(); });
+            app.MapWhen(IsClientDomain, ids => { ids.Use<ReconfigureIdsMiddleware>(); });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {

@@ -69,9 +69,30 @@ namespace Iam.Identity
             await base.IsActiveAsync(ctx);
         }
 
+        public override Task AuthenticateExternalAsync(ExternalAuthenticationContext ctx)
+        {
+            var schema = GetTenant(ctx.SignInMessage.ClientId);
+
+            ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = schema;
+
+            _schema = schema;
+
+            return base.AuthenticateExternalAsync(ctx);
+        }
+
+        private string GetTenant(string clientId)
+        {
+            var tenantKey = _tenantService.GetClientMapping(clientId);
+            
+            Ensure.NotNull(tenantKey);
+            
+            return tenantKey.TenantId;
+        }
+
         private string GetTenant(ClaimsPrincipal subject, string clientId)
         {
             Ensure.Argument.NotNull(subject, nameof(subject));
+            Ensure.Argument.NotNullOrEmpty(clientId, nameof(clientId));
             
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
             var tenantKey = tenant?.Value;
@@ -81,14 +102,15 @@ namespace Iam.Identity
                 tenantKey = _tenantService.GetClientMapping(clientId).TenantId;
             }
 
-            if (tenantKey == null)
-                throw new InvalidOperationException();
+            Ensure.NotNullOrEmpty(tenantKey);
 
             return tenantKey;
         }
 
         protected override async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
         {
+            Ensure.Argument.NotNull(user, nameof(user));
+
             var claims = new List<Claim>();
 
             if (!EnableSecurityStamp || !userManager.SupportsUserSecurityStamp) return claims;
@@ -96,6 +118,8 @@ namespace Iam.Identity
             var stamp = await userManager.GetSecurityStampAsync(user.Id);
 
             if (string.IsNullOrWhiteSpace(stamp)) return claims;
+
+            Ensure.NotNull(_schema);
 
             claims.Add(new Claim("security_stamp", stamp));
             claims.Add(new Claim("tenant_mapping", _schema));
