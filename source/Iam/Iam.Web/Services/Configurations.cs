@@ -75,7 +75,7 @@ namespace Iam.Web.Services
             factory.Register(new Registration<IAdminContext, AdminContext>());
             factory.Register(new Registration<TenantService>());
 
-            //factory.CustomRequestValidator = new Registration<ICustomRequestValidator, CustomRequestValidator>();
+            factory.CustomRequestValidator = new Registration<ICustomRequestValidator, CustomRequestValidator>();
             factory.ViewService = new Registration<IViewService, CustomViewService>();
 
             return factory.RegisterIdentityServices().RegisterUserServices();
