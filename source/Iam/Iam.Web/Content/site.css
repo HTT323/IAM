@@ -57,7 +57,14 @@ label {
     font-size: 12px;
 }
 
+.btn-default {
+    background-repeat: repeat-x;
+    background-color: #f2f2f2;
+    background-image: linear-gradient(to bottom, #fff 0, #f2f2f2 100%);
+}
+
 /* ReSharper disable once Html.AttributeNotResolved */
 [ng-cloak] {
   display: none;
 }
+

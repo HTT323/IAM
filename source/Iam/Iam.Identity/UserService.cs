@@ -83,8 +83,8 @@ namespace Iam.Identity
 
         protected override async Task<AuthenticateResult> UpdateAccountFromExternalClaimsAsync(
             string userId,
-            string provider, 
-            string providerId, 
+            string provider,
+            string providerId,
             IEnumerable<Claim> claims)
         {
             var list = claims.ToList();
@@ -104,6 +104,28 @@ namespace Iam.Identity
 
             return null;
         }
+
+        protected override async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
+        {
+            Ensure.Argument.NotNull(user, nameof(user));
+
+            var claims = new List<Claim>();
+
+            if (!EnableSecurityStamp || !userManager.SupportsUserSecurityStamp) return claims;
+
+            var stamp = await userManager.GetSecurityStampAsync(user.Id);
+
+            if (string.IsNullOrWhiteSpace(stamp)) return claims;
+
+            Ensure.NotNull(_schema);
+
+            claims.Add(new Claim("security_stamp", stamp));
+            claims.Add(new Claim("tenant_mapping", _schema));
+
+            return claims;
+        }
+
+        #region Tenants
 
         private string GetTenant(string clientId)
         {
@@ -132,24 +154,6 @@ namespace Iam.Identity
             return tenantKey;
         }
 
-        protected override async Task<IEnumerable<Claim>> GetClaimsForAuthenticateResult(IamUser user)
-        {
-            Ensure.Argument.NotNull(user, nameof(user));
-
-            var claims = new List<Claim>();
-
-            if (!EnableSecurityStamp || !userManager.SupportsUserSecurityStamp) return claims;
-
-            var stamp = await userManager.GetSecurityStampAsync(user.Id);
-
-            if (string.IsNullOrWhiteSpace(stamp)) return claims;
-
-            Ensure.NotNull(_schema);
-
-            claims.Add(new Claim("security_stamp", stamp));
-            claims.Add(new Claim("tenant_mapping", _schema));
-
-            return claims;
-        }
+        #endregion
     }
 }

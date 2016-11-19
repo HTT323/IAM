@@ -58,14 +58,18 @@
                                     <a class="font-small" href="#">Forgot Password?</a>
                                 </p>
                                 <div class="form-group">
-                                    <button class="btn btn-success btn-block" ng-disabled="form.$invalid">Sign In</button>
+                                    <button class="btn btn-primary btn-block" ng-disabled="form.$invalid">Sign In</button>
                                 </div>
                             </fieldset>
                         </form>
                         <div class="external-providers" ng-show="model.externalProviders">
-                            <ul class="list-inline">
+                            <hr/>
+                            <p>Sign in using organizational account:</p>
+                            <ul class="list-unstyled">
                                 <li ng-repeat="provider in model.externalProviders">
-                                    <a class="btn btn-default" href="{{provider.href}}">{{provider.text}}</a>
+                                    <p>
+                                        <a class="btn btn-default btn-block" href="{{provider.href}}">{{provider.text}}</a>
+                                    </p>
                                 </li>
                             </ul>
                         </div>

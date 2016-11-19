@@ -113,7 +113,7 @@ namespace Iam.Web.Middlewares
                 new WsFed
                 {
                     Id = 1,
-                    Caption = "OKTA",
+                    Caption = "OKTA for Partners",
                     MetadataAddress =
                         "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
                     Realm = "https://auth.iam.dev:44300"
@@ -121,7 +121,7 @@ namespace Iam.Web.Middlewares
                 new WsFed
                 {
                     Id = 2,
-                    Caption = "ADFS",
+                    Caption = "Sign in with ADFS",
                     MetadataAddress =
                         "https://dev-947535.oktapreview.com/FederationMetadata/2007-06/exk8ts4xluZ1f46BO0h7/FederationMetadata.xml",
                     Realm = "https://auth.iam.dev:44300"
