@@ -1,6 +1,5 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Threading.Tasks;
@@ -71,7 +70,7 @@ namespace Iam.Web
                             var parts = uri.Host.Split('.');
 
                             Ensure.Equal(parts.Length, 3);
-                            
+
                             rto.ProtocolMessage.AcrValues = $"tenant:{parts[0]}";
                         }
 

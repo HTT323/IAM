@@ -19,12 +19,6 @@ namespace Iam.Identity
         {
         }
 
-        #region DB Sets
-
-        public DbSet<TenantMapping> TenantMappings { get; set; }
-
-        #endregion
-
         public IQueryable<T> Repository<T>() where T : class, IModel
         {
             return Set<T>().AsNoTracking();
@@ -55,8 +49,16 @@ namespace Iam.Identity
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Configurations.Add(new TenantMappingConfiguration());
-            
+            modelBuilder.Configurations.Add(new WsFedMappingConfiguration());
+
             base.OnModelCreating(modelBuilder);
         }
+        
+        #region DB Sets
+
+        public DbSet<TenantMapping> TenantMappings { get; set; }
+        public DbSet<WsFedMapping> WsFedMappings { get; set; }
+
+        #endregion
     }
 }

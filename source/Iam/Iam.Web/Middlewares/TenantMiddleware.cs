@@ -20,6 +20,13 @@ namespace Iam.Web.Middlewares
 
         public override async Task Invoke(IOwinContext context)
         {
+            SetTenant(context);
+
+            await Next.Invoke(context);
+        }
+
+        private static void SetTenant(IOwinContext context)
+        {
             var parts = context.Request.Host.Value.Split('.');
 
             Ensure.Equal(parts.Length, 3);
@@ -27,8 +34,6 @@ namespace Iam.Web.Middlewares
             var sd = parts[0].ToLower();
 
             context.Set(TenantKey, sd);
-
-            await Next.Invoke(context);
         }
     }
 }

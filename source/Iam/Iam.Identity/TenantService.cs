@@ -14,6 +14,7 @@ namespace Iam.Identity
     public class TenantService
     {
         private const string GetAllCacheKey = "TenantService.GetAll";
+        private const string GetAllWsFedCacheKey = "TenantService.GetAllWsFed";
         private readonly ICache _cache;
         private readonly IAdminContext _context;
 
@@ -35,6 +36,20 @@ namespace Iam.Identity
             var list = GetAll();
 
             return list.FirstOrDefault(f => f.ClientId == clientId);
+        }
+
+        public IEnumerable<WsFedMapping> GetAllWsFed()
+        {
+            var data = _cache.Get(GetAllWsFedCacheKey) as IEnumerable<WsFedMapping>;
+
+            if (data != null)
+                return data;
+
+            var list = _context.Repository<WsFedMapping>().ToList();
+
+            _cache.Put(GetAllWsFedCacheKey, list);
+
+            return list;
         }
 
         private IEnumerable<TenantMapping> GetAll()

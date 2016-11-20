@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Iam.Common;
+using Iam.Identity.Tenant;
 using Iam.Web.Services;
 using IdentityModel;
 using IdentityServer3.Core.Configuration;
@@ -14,6 +16,7 @@ using JetBrains.Annotations;
 using Microsoft.Owin;
 using Microsoft.Owin.Builder;
 using Microsoft.Owin.Security.WsFederation;
+using Newtonsoft.Json;
 using Owin;
 using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
 
@@ -28,6 +31,7 @@ namespace Iam.Web.Middlewares
         private string _file = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch", "config.ids");
         private DateTime? _lastReconfigureDateUtc;
         private string _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch");
+        private string _wsfed = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch", "wsfedmappings.json");
 
         public ReconfigureIdsMiddleware(AppFunc next)
         {
@@ -51,6 +55,7 @@ namespace Iam.Web.Middlewares
         {
             EnsureConfigIds();
 
+            // TODO: A change in WSFED mapping should update both config.ids and wsfedmappings.json
             var stamp = File.GetLastWriteTimeUtc(_file);
 
             if (_lastReconfigureDateUtc != null && _lastReconfigureDateUtc == stamp)
@@ -106,27 +111,16 @@ namespace Iam.Web.Middlewares
                 .FirstOrDefault();
         }
 
-        private List<WsFed> GetWsFedProviders()
+        private IEnumerable<WsFedMapping> GetWsFedProviders()
         {
-            return new List<WsFed>
-            {
-                new WsFed
-                {
-                    Id = 1,
-                    Caption = "OKTA for Partners",
-                    MetadataAddress =
-                        "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
-                    Realm = "https://auth.iam.dev:44300"
-                },
-                new WsFed
-                {
-                    Id = 2,
-                    Caption = "Sign in with ADFS",
-                    MetadataAddress =
-                        "https://dev-947535.oktapreview.com/FederationMetadata/2007-06/exk8ts4xluZ1f46BO0h7/FederationMetadata.xml",
-                    Realm = "https://auth.iam.dev:44300"
-                }
-            };
+            if (!File.Exists(_wsfed))
+                return new List<WsFedMapping>();
+
+            var json = File.ReadAllText(_wsfed);
+
+            return string.IsNullOrWhiteSpace(json)
+                ? new List<WsFedMapping>()
+                : JsonConvert.DeserializeObject<IEnumerable<WsFedMapping>>(json);
         }
 
         private void ConfigureIdentityProviders(IAppBuilder app, string signInAsType)
@@ -137,24 +131,21 @@ namespace Iam.Web.Middlewares
             {
                 var wsf = new WsFederationAuthenticationOptions
                 {
-                    AuthenticationType = $"wsfed{wsFed.Id}",
+                    AuthenticationType = $"wsfed{wsFed.WsFedId}",
                     Caption = wsFed.Caption,
+                    TokenValidationParameters =
+                        new TokenValidationParameters
+                        {
+                            ValidAudience = wsFed.Audience
+                        },
                     SignInAsAuthenticationType = signInAsType,
-                    CallbackPath = new PathString($"/callback/wsfed{wsFed.Id}"),
+                    CallbackPath = new PathString($"/callback/wsfed{wsFed.WsFedId}"),
                     MetadataAddress = wsFed.MetadataAddress,
                     Wtrealm = wsFed.Realm
                 };
 
                 app.UseWsFederationAuthentication(wsf);
             }
-        }
-
-        private class WsFed
-        {
-            public int Id { get; set; }
-            public string Caption { get; set; }
-            public string MetadataAddress { get; set; }
-            public string Realm { get; set; }
         }
     }
 }

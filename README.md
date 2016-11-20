@@ -84,9 +84,12 @@ Apply SSL binding > netsh http add sslcert ipport=0.0.0.0:44320 appid={214124cd-
 
 ## OKTA Login
 
+1st:
 Demo User
 identitymgmt@yahoo.com / Demo123#
 
+2nd:
+iam.demouser@yahoo.com / Demo123#
 
 ## Important
 

@@ -1,0 +1,20 @@
+﻿[
+  {
+    "WsFedMappingId": "4e7e01c9-861a-420d-8c84-7de3a8389eab",
+    "WsFedId": 1,
+    "TenantId": "nebula",
+    "Caption": "OKTA for Partners",
+    "MetadataAddress": "https://dev-201609.oktapreview.com/FederationMetadata/2007-06/exk8tp8h2g1tEoETs0h7/FederationMetadata.xml",
+    "Realm": "urn:iam",
+    "Audience": "https://auth.iam.dev:44300"
+  },
+  {
+    "WsFedMappingId": "8857057b-0c88-4418-9358-602b680ca272",
+    "WsFedId": 2,
+    "TenantId": "nebula",
+    "Caption": "Sign in with ADFS",
+    "MetadataAddress": "https://dev-947535.oktapreview.com/FederationMetadata/2007-06/exk8ts4xluZ1f46BO0h7/FederationMetadata.xml",
+    "Realm": "urn:iamadfs",
+    "Audience": "https://auth.iam.dev:44300"
+  }
+]

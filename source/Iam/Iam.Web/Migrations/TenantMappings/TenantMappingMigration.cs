@@ -32,6 +32,7 @@ namespace Iam.Web.Migrations.TenantMappings
             if (_debug)
             {
                 context.TenantMappings.AddRange(DataFileLoader.Load<TenantMapping>("tenantmappings.json"));
+                context.WsFedMappings.AddRange(DataFileLoader.Load<WsFedMapping>("wsfedmappings.json"));
             }
             else
             {
