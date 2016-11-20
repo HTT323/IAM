@@ -15,6 +15,11 @@ namespace Iam.Web.Services
     {
         public Task<AuthorizeRequestValidationResult> ValidateAuthorizeRequestAsync(ValidatedAuthorizeRequest request)
         {
+            if (!request.Subject.Identity.IsAuthenticated)
+                return Task.FromResult(new AuthorizeRequestValidationResult { IsError = false });
+
+
+
             return Task.FromResult(new AuthorizeRequestValidationResult {IsError = false});
         }
 

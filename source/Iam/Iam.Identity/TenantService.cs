@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Iam.Common;
 using Iam.Common.Contracts;
 using Iam.Identity.Tenant;
 using JetBrains.Annotations;
@@ -27,15 +28,21 @@ namespace Iam.Identity
         public TenantMapping GetIamMapping(string tenantId, string clientId)
         {
             var list = GetAll();
+            var mapping = list.FirstOrDefault(f => f.TenantId == tenantId && f.ClientId == clientId);
 
-            return list.FirstOrDefault(f => f.TenantId == tenantId && f.ClientId == clientId);
+            Ensure.NotNull(mapping);
+
+            return mapping;
         }
 
         public TenantMapping GetClientMapping(string clientId)
         {
             var list = GetAll();
+            var mapping = list.FirstOrDefault(f => f.ClientId == clientId);
 
-            return list.FirstOrDefault(f => f.ClientId == clientId);
+            Ensure.NotNull(mapping);
+
+            return mapping;
         }
 
         public IEnumerable<WsFedMapping> GetAllWsFed()

@@ -16,7 +16,9 @@
       "https://nebula.iam.dev:44300/"
     ],
     "IdentityProviderRestrictions": [
-      "idsrv"
+      "idsrv",
+      "wsfed1",
+      "wsfed2"
     ],
     "AllowedScopes": [
       "openid",
@@ -37,6 +39,9 @@
     "PostLogoutRedirectUris": [
       "https://www.orion-portal.dev:44310/"
     ],
+    "IdentityProviderRestrictions": [
+      "idsrv"
+    ],
     "AllowedScopes": [
       "openid",
       "profile",
@@ -55,6 +60,11 @@
     ],
     "PostLogoutRedirectUris": [
       "https://www.nebula-portal.dev:44320/"
+    ],
+    "IdentityProviderRestrictions": [
+      "idsrv",
+      "wsfed1",
+      "wsfed2"
     ],
     "AllowedScopes": [
       "openid",

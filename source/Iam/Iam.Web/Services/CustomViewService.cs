@@ -4,10 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Iam.Common;
 using Iam.Common.Contracts;
 using Iam.Identity;
+using Iam.Identity.Tenant;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using IdentityServer3.Core.Validation;
@@ -44,24 +47,47 @@ namespace Iam.Web.Services
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
         {
             var client = await _clientStore.FindClientByIdAsync(message.ClientId);
-            var name = client?.ClientName;
-
-            model.AllowRememberMe = false;
-
             var clientId = message.ClientId;
             var tenant = message.Tenant;
 
-            if (clientId != AppSettings.IamClientId)
-                return await Render(model, "login", name);
+            string name;
+            TenantMapping mapping;
+            
+            if (clientId == AppSettings.IamClientId)
+            {
+                mapping = _tenantService.GetIamMapping(tenant, clientId);
+                name = mapping.TenantName;
+            }
+            else
+            {
+                mapping = _tenantService.GetClientMapping(message.ClientId);
+                name = client?.ClientName;
+            }
 
-            var mapping = _tenantService.GetIamMapping(tenant, clientId);
-
-            if (mapping == null)
-                throw new InvalidOperationException("Invalid tenant mapping");
-
-            name = mapping.TenantName;
+            model.ExternalProviders = GetClientProviders(mapping.TenantId, model.ExternalProviders);
 
             return await Render(model, "login", name);
+        }
+
+        private IEnumerable<LoginPageLink> GetClientProviders(
+            string tenantId, 
+            IEnumerable<LoginPageLink> providers)
+        {
+            var wsFeds = _tenantService.GetAllWsFed();
+
+            var clientProviders =
+                from wsFed in wsFeds
+                where tenantId == wsFed.TenantId
+                select providers.First(f => f.Type == $"wsfed{wsFed.WsFedId}")
+                into wsf
+                select new LoginPageLink
+                {
+                    Type = wsf.Type,
+                    Href = wsf.Href,
+                    Text = wsf.Text
+                };
+
+            return clientProviders.ToList();
         }
 
         public Task<Stream> Logout(LogoutViewModel model, SignOutMessage message)
