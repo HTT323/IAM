@@ -11,7 +11,17 @@
             <p>Retrieve user information using an access token.</p>
         </li>
     </ul>
-    <p>
-        <a href="~/Home/Claims" class="btn btn-primary btn-lg">Sign in to continue</a>
-    </p>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p>You are logged in!</p>
+        <p>
+            <a href="~/Home/Claims">View Claims</a>
+        </p>
+    }
+    else
+    {
+        <p>
+            <a href="~/Home/Claims" class="btn btn-primary btn-lg">Sign in to continue</a>
+        </p>
+    }
 </div>

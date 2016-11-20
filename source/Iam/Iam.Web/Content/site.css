@@ -68,3 +68,6 @@ label {
   display: none;
 }
 
+.ng-hide {
+    display: none !important;
+}

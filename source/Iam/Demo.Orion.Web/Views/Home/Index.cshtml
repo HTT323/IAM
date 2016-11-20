@@ -2,7 +2,17 @@
 <div class="jumbotron">
     <h1>Orion Web Portal</h1>
     <p class="lead">Welcome to the Orion Web Portal - <span class="label label-danger">Implicit Flow</span> <span class="label label-warning">id_token</span></p>
-    <p>
-        <a href="~/Home/Claims" class="btn btn-primary btn-lg">Sign in to continue</a>
-    </p>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <p>You are logged in!</p>
+        <p>
+            <a href="~/Home/Claims">View Claims</a>
+        </p>
+    }
+    else
+    {
+        <p>
+            <a href="~/Home/Claims" class="btn btn-primary btn-lg">Sign in to continue</a>
+        </p>
+    }
 </div>

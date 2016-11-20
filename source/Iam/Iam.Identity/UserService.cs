@@ -72,7 +72,9 @@ namespace Iam.Identity
 
         public override Task AuthenticateExternalAsync(ExternalAuthenticationContext ctx)
         {
-            var schema = GetTenant(ctx.SignInMessage.ClientId);
+            var schema = ctx.SignInMessage.ClientId == AppSettings.IamClientId 
+                ? GetTenant(ctx.SignInMessage.Tenant, ctx.SignInMessage.ClientId) 
+                : GetTenant(ctx.SignInMessage.ClientId);
 
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = schema;
 
@@ -130,6 +132,15 @@ namespace Iam.Identity
         private string GetTenant(string clientId)
         {
             var tenantKey = _tenantService.GetClientMapping(clientId);
+
+            Ensure.NotNull(tenantKey);
+
+            return tenantKey.TenantId;
+        }
+
+        private string GetTenant(string tenantId, string clientId)
+        {
+            var tenantKey = _tenantService.GetIamMapping(tenantId, clientId);
 
             Ensure.NotNull(tenantKey);
 
