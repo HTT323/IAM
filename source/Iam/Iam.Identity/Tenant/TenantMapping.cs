@@ -16,6 +16,7 @@ namespace Iam.Identity.Tenant
         public string TenantId { get; set; }
         public string TenantName { get; set; }
         public string ClientId { get; set; }
+        public string Logo { get; set; }
 
         public Guid ObjectId => TenantMappingId;
     }

@@ -72,6 +72,13 @@ namespace Iam.Web
                             Ensure.Equal(parts.Length, 3);
 
                             rto.ProtocolMessage.AcrValues = $"tenant:{parts[0]}";
+
+                            var impersonateModeUser = rto.OwinContext.Get<string>("Impersonate");
+                            if (!string.IsNullOrEmpty(impersonateModeUser))
+                            {
+                                rto.ProtocolMessage.AcrValues = string.Format("{0}:{1} {2}:{3}", "Impersonate", impersonateModeUser, "tenant", parts[0]);
+                                rto.ProtocolMessage.Prompt = Constants.PromptModes.Login;
+                            }
                         }
 
                         var redirectUri = uri.Port == 443

@@ -14,6 +14,7 @@ namespace Iam.Web.Migrations.TenantMappings
                         TenantId = c.String(nullable: false, maxLength: 200),
                         TenantName = c.String(nullable: false, maxLength: 200),
                         ClientId = c.String(nullable: false, maxLength: 200),
+                        Logo = c.String(nullable: false, maxLength: 200),
                     })
                 .PrimaryKey(t => t.TenantMappingId);
             

@@ -66,7 +66,7 @@ namespace Iam.Web.Services
 
             model.ExternalProviders = GetClientProviders(mapping.TenantId, model.ExternalProviders);
 
-            return await Render(model, "login", name);
+            return await Render(model, "login", name, mapping);
         }
 
         private IEnumerable<LoginPageLink> GetClientProviders(
@@ -115,7 +115,11 @@ namespace Iam.Web.Services
             return Render(model, "error");
         }
 
-        private Task<Stream> Render(CommonViewModel model, string page, string clientName = null)
+        private Task<Stream> Render(
+            CommonViewModel model, 
+            string page, 
+            string clientName = null, 
+            TenantMapping mapping = null)
         {
             var json =
                 JsonConvert.SerializeObject(
@@ -127,12 +131,18 @@ namespace Iam.Web.Services
 
             html = Replace(html, new
             {
-                iamHomeUrl = AppSettings.IamHomeFullUrl,
-                iamName = AppSettings.IamClientName,
                 siteName = Encoder.HtmlEncode(model.SiteName),
                 model = Encoder.HtmlEncode(json),
                 clientName
             });
+
+            if (mapping != null)
+            {
+                html = Replace(html, new
+                {
+                    logo = mapping.Logo
+                });
+            }
 
             return Task.FromResult(StringToStream(html));
         }

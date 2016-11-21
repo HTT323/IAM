@@ -3,36 +3,42 @@
     "TenantMappingId": "7743da4e-ca69-4d30-ae62-a6bd013264b3",
     "TenantId": "admin",
     "TenantName": "Identity Management",
-    "ClientId": "iam"
+    "ClientId": "iam",
+    "Logo": "admin.png" 
   },
   {
     "TenantMappingId": "beac7bc5-e243-4d09-bf7a-a6bd013264b3",
     "TenantId": "orion",
     "TenantName": "Orion",
-    "ClientId": "iam"
+    "ClientId": "iam",
+    "Logo": "orion.png"
   },
   {
     "TenantMappingId": "b2a7158e-1f28-475f-a22f-a6bd013264b3",
     "TenantId": "orion",
     "TenantName": "Orion",
-    "ClientId": "orion-portal"
+    "ClientId": "orion-portal",
+    "Logo": "orion.png"
   },
   {
     "TenantMappingId": "8e077de3-fbbb-4f92-b771-a6bd013264b3",
     "TenantId": "nebula",
     "TenantName": "Nebula",
-    "ClientId": "iam"
+    "ClientId": "iam",
+    "Logo": "nebula.png"
   },
   {
     "TenantMappingId": "b4a1e55a-d19d-437c-964d-a6bd013264b3",
     "TenantId": "nebula",
     "TenantName": "Nebula",
-    "ClientId": "nebula-portal"
+    "ClientId": "nebula-portal",
+    "Logo": "nebula.png"
   },
   {
     "TenantMappingId": "4c4b81d1-d1f0-43dc-85ff-8ed59397dcc1",
     "TenantId": "nebula",
     "TenantName": "Nebula",
-    "ClientId": "nebula-api-client"
+    "ClientId": "nebula-api-client",
+    "Logo": "nebula.png"
   }
 ]

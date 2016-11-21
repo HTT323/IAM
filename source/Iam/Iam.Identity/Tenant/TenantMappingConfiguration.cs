@@ -16,6 +16,7 @@ namespace Iam.Identity.Tenant
             Property(p => p.TenantId).HasMaxLength(200).IsRequired();
             Property(p => p.TenantName).HasMaxLength(200).IsRequired();
             Property(p => p.ClientId).HasMaxLength(200).IsRequired();
+            Property(p => p.Logo).HasMaxLength(200).IsRequired();
         }
     }
 }
