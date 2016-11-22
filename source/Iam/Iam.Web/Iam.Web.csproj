@@ -285,7 +285,6 @@
       <DependentUpon>201611131001585_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\TenantMappings\TenantMappingMigration.cs" />
-    <Compile Include="Plumbing\ChallengeResult.cs" />
     <Compile Include="Services\Bundle.cs" />
     <Compile Include="Services\Configurations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

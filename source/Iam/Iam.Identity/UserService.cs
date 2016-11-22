@@ -30,43 +30,6 @@ namespace Iam.Identity
             _tenantService = tenantService;
         }
 
-        public override async Task PreAuthenticateAsync(PreAuthenticationContext context)
-        {
-            string impersonatedUserName =
-                context.SignInMessage.AcrValues.FirstOrDefault(x => x.Split(':')[0] == "Impersonate");
-            var tenant = context.SignInMessage.Tenant;
-
-            if (!string.IsNullOrWhiteSpace(impersonatedUserName))
-            {
-                impersonatedUserName = impersonatedUserName.Split(':')[1];
-                _schema = tenant;
-                ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = _schema;
-
-                //lookup the user to be impersonated
-                var impersonatedUser = userManager.Users.FirstOrDefault(x => x.UserName == impersonatedUserName);
-                if (impersonatedUser != null)
-                {
-                    context.AuthenticateResult = new AuthenticateResult(impersonatedUser.Id.ToString(),
-                        impersonatedUser.UserName, new List<Claim>() {new Claim("tenant_mapping", tenant)});
-                }
-                else
-                {
-                    context.AuthenticateResult = new AuthenticateResult("Invalid attempt to impersonate user");
-                }
-            }
-            else
-            {
-                await base.PreAuthenticateAsync(context);
-            }
-
-        }
-
-
-        public override Task PostAuthenticateAsync(PostAuthenticationContext context)
-        {
-            return base.PostAuthenticateAsync(context);
-        }
-
         public override async Task AuthenticateLocalAsync(LocalAuthenticationContext ctx)
         {
             var clientId = ctx.SignInMessage.ClientId;
@@ -109,8 +72,8 @@ namespace Iam.Identity
 
         public override Task AuthenticateExternalAsync(ExternalAuthenticationContext ctx)
         {
-            var schema = ctx.SignInMessage.ClientId == AppSettings.IamClientId 
-                ? GetTenant(ctx.SignInMessage.Tenant, ctx.SignInMessage.ClientId) 
+            var schema = ctx.SignInMessage.ClientId == AppSettings.IamClientId
+                ? GetTenant(ctx.SignInMessage.Tenant, ctx.SignInMessage.ClientId)
                 : GetTenant(ctx.SignInMessage.ClientId);
 
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = schema;
