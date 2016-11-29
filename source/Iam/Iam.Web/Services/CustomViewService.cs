@@ -50,6 +50,9 @@ namespace Iam.Web.Services
             var clientId = message.ClientId;
             var tenant = message.Tenant;
 
+            if (clientId == null)
+                clientId = "nebula-portal";
+
             string name;
             TenantMapping mapping;
             
@@ -60,7 +63,7 @@ namespace Iam.Web.Services
             }
             else
             {
-                mapping = _tenantService.GetClientMapping(message.ClientId);
+                mapping = _tenantService.GetClientMapping(clientId);
                 name = client?.ClientName;
             }
 

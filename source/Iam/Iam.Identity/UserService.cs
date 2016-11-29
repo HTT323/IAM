@@ -35,6 +35,9 @@ namespace Iam.Identity
             var clientId = ctx.SignInMessage.ClientId;
             var tenant = ctx.SignInMessage.Tenant;
 
+            if (clientId == null)
+                clientId = "nebula-portal";
+
             if (clientId == AppSettings.IamClientId)
             {
                 _schema = tenant;
@@ -56,6 +59,9 @@ namespace Iam.Identity
 
         public override async Task GetProfileDataAsync(ProfileDataRequestContext ctx)
         {
+            if (ctx.Client == null)
+                ctx.Client = new Client {ClientId = "nebula-portal"};
+
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
                 GetTenant(ctx.Subject, ctx.Client.ClientId);
 
@@ -64,6 +70,9 @@ namespace Iam.Identity
 
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
+            if (ctx.Client == null)
+                ctx.Client = new Client { ClientId = "nebula-portal" };
+
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
                 GetTenant(ctx.Subject, ctx.Client.ClientId);
 

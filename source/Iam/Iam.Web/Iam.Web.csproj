@@ -292,6 +292,7 @@
     <Compile Include="Services\CustomViewService.cs" />
     <Compile Include="Services\HttpCache.cs" />
     <Compile Include="Services\NoCache.cs" />
+    <Compile Include="Services\RelyingPartyService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

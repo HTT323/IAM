@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Claims;
 using System.IdentityModel.Tokens;
 using System.IO;
 using System.Linq;
@@ -11,7 +12,12 @@ using Iam.Common;
 using Iam.Identity.Tenant;
 using Iam.Web.Services;
 using IdentityModel;
+using IdentityModel.Constants;
+using IdentityServer3.Core;
 using IdentityServer3.Core.Configuration;
+using IdentityServer3.WsFederation.Configuration;
+using IdentityServer3.WsFederation.Models;
+using IdentityServer3.WsFederation.Services;
 using JetBrains.Annotations;
 using Microsoft.Owin;
 using Microsoft.Owin.Builder;
@@ -85,12 +91,60 @@ namespace Iam.Web.Middlewares
                         RememberLastUsername = true,
                         IdentityProviders = ConfigureIdentityProviders,
                         EnableAutoCallbackForFederatedSignout = true
-                    }
+                    },
+                PluginConfiguration = ConfigureWsFederation
             });
 
             app.Run(ctx => next(ctx.Environment));
 
             _dynamicAppFunc = app.Build();
+        }
+
+        private void ConfigureWsFederation(IAppBuilder pluginApp, IdentityServerOptions options)
+        {
+            var factory = new WsFederationServiceFactory(options.Factory)
+            {
+                RelyingPartyService = new Registration<IRelyingPartyService>(typeof(InMemoryRelyingPartyService))
+            };
+
+            factory.UseInMemoryRelyingParties(GetWsFedRelyingParties());
+
+            var wsFedOptions = new WsFederationPluginOptions
+            {
+                IdentityServerOptions = options,
+                Factory = factory,
+                EnableMetadataEndpoint = true
+            };
+
+            pluginApp.UseWsFederationPlugin(wsFedOptions);
+        }
+
+        private IEnumerable<RelyingParty> GetWsFedRelyingParties()
+        {
+            var x = ClaimTypes.Name;
+
+            return new List<RelyingParty>
+            {
+                new RelyingParty
+                {
+                    Name = "SharePoint Portal",
+                    Enabled = true,
+                    Realm = "urn:sharepoint",
+                    ReplyUrl = "https://win-gu7amfjpd9k:44301/_trust/",
+                    PostLogoutRedirectUris = new List<string>
+                    {
+                        "https://win-gu7amfjpd9k:44301/"
+                    },
+                    TokenType = "urn:oasis:names:tc:SAML:1.0:assertion",
+                    DefaultClaimTypeMappingPrefix = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/",
+                    ClaimMappings = new Dictionary<string, string>()
+                    {
+                        {"sub", ClaimTypes.NameIdentifier},
+                        {"email", ClaimTypes.Email},
+                        {"upn", ClaimTypes.Upn}
+                    }
+                }
+            };
         }
 
         private void EnsureConfigIds()
