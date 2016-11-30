@@ -99,3 +99,20 @@ The ReplyToUrl in OKTA must match the CallbackPath in WsFederationAuthentication
 
 -> OKTA: https://auth.iam.dev:44300/callback/wsfed1
 -> CallbackPath = new PathString($"/callback/wsfed{wsFed.Id}")
+
+SP Identity Setup
+-----------------
+
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("C:\local.cer")
+New-SPTrustedRootAuthority -Name "Token Signing Cert" -Certificate $cert
+$nameClaimMap = New-SPClaimTypeMapping -IncomingClaimType "http://schemas.org/claims/username" -IncomingClaimTypeDisplayName "Name" -SameAsIncoming 
+$upnClaimMap = New-SPClaimTypeMapping -IncomingClaimType "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn" -IncomingClaimTypeDisplayName "UPN" -SameAsIncoming 
+$roleClaimMap = New-SPClaimTypeMapping -IncomingClaimType "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" -IncomingClaimTypeDisplayName "Role" -SameAsIncoming 
+$emailClaimMap = New-SPClaimTypeMapping -IncomingClaimType "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress" -IncomingClaimTypeDisplayName "EmailAddress" -SameAsIncoming
+$realm = "urn:nebula:8af89396db32459c8cf2a819f1142c36"
+$signInURL = "https://auth.iam.dev:44300/wsfed"
+$ap = New-SPTrustedIdentityTokenIssuer -Name "IAM" -Description "IAM Trusted Identity Provider" -realm $realm -ImportTrustCertificate $cert -ClaimsMappings $nameClaimMap, $emailClaimMap, $upnClaimMap, $roleClaimMap -SignInUrl $signInURL -IdentifierClaim $nameClaimMap.InputClaimType
+
+
+Remove-SPTrustedRootAuthority "Token Signing Cert"
+Remove-SPTrustedIdentityTokenIssuer "IAM"

@@ -12,8 +12,6 @@ using Iam.Common;
 using Iam.Identity.Tenant;
 using Iam.Web.Services;
 using IdentityModel;
-using IdentityModel.Constants;
-using IdentityServer3.Core;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.WsFederation.Configuration;
 using IdentityServer3.WsFederation.Models;
@@ -121,25 +119,25 @@ namespace Iam.Web.Middlewares
 
         private IEnumerable<RelyingParty> GetWsFedRelyingParties()
         {
-            var x = ClaimTypes.Name;
-
             return new List<RelyingParty>
             {
+                // TODO: name claim from claims table!
                 new RelyingParty
                 {
                     Name = "SharePoint Portal",
                     Enabled = true,
-                    Realm = "urn:sharepoint",
-                    ReplyUrl = "https://win-gu7amfjpd9k:44301/_trust/",
+                    Realm = "urn:nebula:8af89396db32459c8cf2a819f1142c36",
+                    ReplyUrl = "https://www.sharepoint-nebula.dev/_trust/",
                     PostLogoutRedirectUris = new List<string>
                     {
-                        "https://win-gu7amfjpd9k:44301/"
+                        "https://www.sharepoint-nebula.dev/"
                     },
                     TokenType = "urn:oasis:names:tc:SAML:1.0:assertion",
                     DefaultClaimTypeMappingPrefix = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/",
-                    ClaimMappings = new Dictionary<string, string>()
+                    ClaimMappings = new Dictionary<string, string>
                     {
                         {"sub", ClaimTypes.NameIdentifier},
+                        {"name", "http://schemas.org/claims/username"},
                         {"email", ClaimTypes.Email},
                         {"upn", ClaimTypes.Upn}
                     }

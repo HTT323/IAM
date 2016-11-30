@@ -59,6 +59,16 @@ namespace Iam.Identity
             return list;
         }
 
+        public WsFedProtocolMapping GetWsFedProtocolMappingByRealm(string realm)
+        {
+            var mapping = 
+                _context.Repository<WsFedProtocolMapping>().FirstOrDefault(f => f.Realm == realm);
+
+            Ensure.NotNull(mapping);
+
+            return mapping;
+        }
+
         private IEnumerable<TenantMapping> GetAll()
         {
             var data = _cache.Get(GetAllCacheKey) as IEnumerable<TenantMapping>;

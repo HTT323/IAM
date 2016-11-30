@@ -6,8 +6,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Iam.Common;
 using Iam.Common.Contracts;
+using Iam.Common.Helpers;
 using Iam.Identity;
 using Iam.Identity.Tenant;
 using IdentityServer3.Core.Configuration;
@@ -47,12 +49,18 @@ namespace Iam.Web.Services
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
         {
             var client = await _clientStore.FindClientByIdAsync(message.ClientId);
+
+            if (client == null && WsFedProtocolHelper.IsWsFedProtocolRequest(message.ReturnUrl))
+            {
+                var realm = WsFedProtocolHelper.GetRealm(message.ReturnUrl);
+                var wsfp = _tenantService.GetWsFedProtocolMappingByRealm(realm);
+
+                return await Render(model, "login", wsfp.Caption, _tenantService.GetClientMapping(wsfp.Realm));
+            }
+
             var clientId = message.ClientId;
             var tenant = message.Tenant;
-
-            if (clientId == null)
-                clientId = "nebula-portal";
-
+            
             string name;
             TenantMapping mapping;
             

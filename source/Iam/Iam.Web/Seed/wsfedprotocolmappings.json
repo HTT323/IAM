@@ -1,0 +1,8 @@
+﻿[
+  {
+    "WsFedMappingProtocolId": "8af89396-db32-459c-8cf2-a819f1142c36",
+    "Realm": "urn:nebula:8af89396db32459c8cf2a819f1142c36",
+    "TenantId": "nebula",
+    "Caption": "SharePoint Nebula" 
+  }
+]

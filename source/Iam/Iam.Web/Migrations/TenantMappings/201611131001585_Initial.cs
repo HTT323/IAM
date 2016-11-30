@@ -32,10 +32,22 @@ namespace Iam.Web.Migrations.TenantMappings
                     })
                 .PrimaryKey(t => t.WsFedMappingId);
             
+            CreateTable(
+                "dbo.WsFedProtocolMappings",
+                c => new
+                    {
+                        WsFedMappingProtocolId = c.Guid(nullable: false),
+                        Realm = c.String(nullable: false, maxLength: 200),
+                        TenantId = c.String(nullable: false, maxLength: 200),
+                        Caption = c.String(nullable: false, maxLength: 200),
+                    })
+                .PrimaryKey(t => t.WsFedMappingProtocolId);
+            
         }
         
         public override void Down()
         {
+            DropTable("dbo.WsFedProtocolMappings");
             DropTable("dbo.WsFedMappings");
             DropTable("dbo.TenantMappings");
         }

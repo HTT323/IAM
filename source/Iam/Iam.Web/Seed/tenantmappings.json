@@ -4,7 +4,7 @@
     "TenantId": "admin",
     "TenantName": "Identity Management",
     "ClientId": "iam",
-    "Logo": "admin.png" 
+    "Logo": "admin.png"
   },
   {
     "TenantMappingId": "beac7bc5-e243-4d09-bf7a-a6bd013264b3",
@@ -39,6 +39,13 @@
     "TenantId": "nebula",
     "TenantName": "Nebula",
     "ClientId": "nebula-api-client",
+    "Logo": "nebula.png"
+  },
+  {
+    "TenantMappingId": "2ed26913-d7a7-470c-96f2-13fb9d75a968",
+    "TenantId": "nebula",
+    "TenantName": "Nebula",
+    "ClientId": "urn:nebula:8af89396db32459c8cf2a819f1142c36",
     "Logo": "nebula.png"
   }
 ]

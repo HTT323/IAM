@@ -33,6 +33,7 @@ namespace Iam.Web.Migrations.TenantMappings
             {
                 context.TenantMappings.AddRange(DataFileLoader.Load<TenantMapping>("tenantmappings.json"));
                 context.WsFedMappings.AddRange(DataFileLoader.Load<WsFedMapping>("wsfedmappings.json"));
+                context.WsFedProtocolMappings.AddRange(DataFileLoader.Load<WsFedProtocolMapping>("wsfedprotocolmappings.json"));
             }
             else
             {

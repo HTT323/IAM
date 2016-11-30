@@ -50,6 +50,7 @@ namespace Iam.Identity
         {
             modelBuilder.Configurations.Add(new TenantMappingConfiguration());
             modelBuilder.Configurations.Add(new WsFedMappingConfiguration());
+            modelBuilder.Configurations.Add(new WsFedProtocolMappingConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
@@ -58,6 +59,7 @@ namespace Iam.Identity
 
         public DbSet<TenantMapping> TenantMappings { get; set; }
         public DbSet<WsFedMapping> WsFedMappings { get; set; }
+        public DbSet<WsFedProtocolMapping> WsFedProtocolMappings { get; set; }
 
         #endregion
     }

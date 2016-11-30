@@ -1,11 +1,11 @@
 ﻿#region
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Iam.Common;
+using Iam.Common.Helpers;
 using IdentityModel;
 using IdentityServer3.AspNetIdentity;
 using IdentityServer3.Core;
@@ -36,19 +36,25 @@ namespace Iam.Identity
             var tenant = ctx.SignInMessage.Tenant;
 
             if (clientId == null)
-                clientId = "nebula-portal";
+            {
+                var isWsfpRequest = WsFedProtocolHelper.IsWsFedProtocolRequest(ctx.SignInMessage.ReturnUrl);
 
-            if (clientId == AppSettings.IamClientId)
+                Ensure.Equal(isWsfpRequest, true);
+
+                var realm = WsFedProtocolHelper.GetRealm(ctx.SignInMessage.ReturnUrl);
+                var wsfp = _tenantService.GetWsFedProtocolMappingByRealm(realm);
+                var mapping = _tenantService.GetClientMapping(wsfp.Realm);
+
+                _schema = mapping.TenantId;
+            }
+            else if (clientId == AppSettings.IamClientId)
             {
                 _schema = tenant;
             }
             else
             {
                 var mapping = _tenantService.GetClientMapping(clientId);
-
-                if (mapping == null)
-                    throw new InvalidOperationException("Invalid tenant mapping");
-
+                
                 _schema = mapping.TenantId;
             }
 
@@ -59,31 +65,52 @@ namespace Iam.Identity
 
         public override async Task GetProfileDataAsync(ProfileDataRequestContext ctx)
         {
-            if (ctx.Client == null)
-                ctx.Client = new Client {ClientId = "nebula-portal"};
+            string clientId = null;
+
+            if (ctx.Client != null)
+                clientId = ctx.Client.ClientId;
 
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
-                GetTenant(ctx.Subject, ctx.Client.ClientId);
+                GetTenant(ctx.Subject, clientId);
 
             await base.GetProfileDataAsync(ctx);
         }
 
         public override async Task IsActiveAsync(IsActiveContext ctx)
         {
-            if (ctx.Client == null)
-                ctx.Client = new Client { ClientId = "nebula-portal" };
+            string clientId = null;
+
+            if (ctx.Client != null)
+                clientId = ctx.Client.ClientId;
 
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey =
-                GetTenant(ctx.Subject, ctx.Client.ClientId);
+                GetTenant(ctx.Subject, clientId);
 
             await base.IsActiveAsync(ctx);
         }
 
         public override Task AuthenticateExternalAsync(ExternalAuthenticationContext ctx)
         {
-            var schema = ctx.SignInMessage.ClientId == AppSettings.IamClientId
-                ? GetTenant(ctx.SignInMessage.Tenant, ctx.SignInMessage.ClientId)
-                : GetTenant(ctx.SignInMessage.ClientId);
+            string schema;
+
+            if (ctx.SignInMessage.ClientId == null)
+            {
+                var isWsfpRequest = WsFedProtocolHelper.IsWsFedProtocolRequest(ctx.SignInMessage.ReturnUrl);
+
+                Ensure.Equal(isWsfpRequest, true);
+
+                var realm = WsFedProtocolHelper.GetRealm(ctx.SignInMessage.ReturnUrl);
+                var wsfp = _tenantService.GetWsFedProtocolMappingByRealm(realm);
+                var mapping = _tenantService.GetClientMapping(wsfp.Realm);
+
+                schema = mapping.TenantId;
+            }
+            else
+            {
+                schema = ctx.SignInMessage.ClientId == AppSettings.IamClientId
+                    ? GetTenant(ctx.SignInMessage.Tenant, ctx.SignInMessage.ClientId)
+                    : GetTenant(ctx.SignInMessage.ClientId);
+            }
 
             ((IamUserManager) userManager).IdsUserStore.IdsContext.CacheKey = schema;
 
@@ -159,8 +186,7 @@ namespace Iam.Identity
         private string GetTenant(ClaimsPrincipal subject, string clientId)
         {
             Ensure.Argument.NotNull(subject, nameof(subject));
-            Ensure.Argument.NotNullOrEmpty(clientId, nameof(clientId));
-
+            
             var tenant = subject.Claims.FirstOrDefault(f => f.Type == "tenant_mapping");
             var tenantKey = tenant?.Value;
 
