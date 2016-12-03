@@ -33,8 +33,7 @@ namespace Iam.Identity
         public override async Task AuthenticateLocalAsync(LocalAuthenticationContext ctx)
         {
             var clientId = ctx.SignInMessage.ClientId;
-            var tenant = ctx.SignInMessage.Tenant;
-
+            
             if (clientId == null)
             {
                 var isWsfpRequest = WsFedProtocolHelper.IsWsFedProtocolRequest(ctx.SignInMessage.ReturnUrl);
@@ -49,7 +48,7 @@ namespace Iam.Identity
             }
             else if (clientId == AppSettings.IamClientId)
             {
-                _schema = tenant;
+                _schema = ctx.SignInMessage.Tenant;
             }
             else
             {
