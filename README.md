@@ -1,5 +1,7 @@
 # Work in progress ...
 
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/IAM-for-Identity-Server-3)
+
 # IAM
 Identity and Access Management layer for Identity Server v3
 
