@@ -1,4 +1,8 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/94d1q1it5e63t9t3?svg=true)](https://ci.appveyor.com/project/HTT323/iam)
+
 # Work in progress ...
+
+[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/IAM-for-Identity-Server-3)
 
 # IAM
 Identity and Access Management layer for Identity Server v3
