@@ -28,19 +28,49 @@ namespace Iam.Identity.Tenant
             if (context.Users.Any(f => f.UserName == context.CacheKey))
                 return;
 
-            var user = new IamUser
+            var manager = new IamUserManager(new IamUserStore(context));
+
+            manager.UserValidator = 
+                new UserValidator<IamUser>(manager)
+                {
+                    AllowOnlyAlphanumericUserNames = false
+                };
+
+            var admin = new IamUser
             {
                 Id = GuidCombGenerator.Generate().ToString(),
                 UserName = context.CacheKey
             };
 
-            var manager = new IamUserManager(new IamUserStore(context));
+            manager.Create(admin, $"{ConvertToProper(context.CacheKey)}123#");
+
+            manager.AddClaim(
+                admin.Id,
+                new Claim(Constants.ClaimTypes.Role, "Administrator"));
+
+            var user = new IamUser
+            {
+                Id = GuidCombGenerator.Generate().ToString(),
+                UserName = $"{context.CacheKey}-user"
+            };
 
             manager.Create(user, $"{ConvertToProper(context.CacheKey)}123#");
 
             manager.AddClaim(
                 user.Id,
-                new Claim(Constants.ClaimTypes.Role, "Administrator"));
+                new Claim(Constants.ClaimTypes.Role, "User"));
+
+            var userEmail = new IamUser
+            {
+                Id = GuidCombGenerator.Generate().ToString(),
+                UserName = $"{context.CacheKey}-user@{context.CacheKey}.com"
+            };
+
+            manager.Create(userEmail, $"{ConvertToProper(context.CacheKey)}123#");
+
+            manager.AddClaim(
+                userEmail.Id,
+                new Claim(Constants.ClaimTypes.Role, "User"));
         }
 
         private static string ConvertToProper(string text)
