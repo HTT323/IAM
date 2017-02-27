@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Helpers;
 using Demo.Nebula.Web;
+using IdentityModel.Client;
 using IdentityServer3.Core;
 using JetBrains.Annotations;
 using Microsoft.Owin;
@@ -45,7 +47,7 @@ namespace Demo.Nebula.Web
                     RedirectUri = "https://www.nebula-portal.dev:44320/",
                     Notifications = new OpenIdConnectAuthenticationNotifications
                     {
-                        SecurityTokenValidated = n =>
+                        SecurityTokenValidated = async n =>
                         {
                             var nid =
                                 new ClaimsIdentity(
@@ -60,10 +62,17 @@ namespace Demo.Nebula.Web
                             nid.AddClaim(new Claim("id_token", n.ProtocolMessage.IdToken));
                             nid.AddClaim(new Claim("access_token", n.ProtocolMessage.AccessToken));
 
+                            var uic = new UserInfoClient(new Uri("https://auth.iam.dev:44300/connect/userinfo"), n.ProtocolMessage.AccessToken);
+                            var ui = await uic.GetAsync();
+
+                            foreach (var claim in ui.Claims)
+                            {
+                                if (nid.Claims.FirstOrDefault(f => f.Type == claim.Item1) == null)
+                                    nid.AddClaim(new Claim(claim.Item1, claim.Item2));
+                            }
+
                             n.AuthenticationTicket =
                                 new AuthenticationTicket(nid, n.AuthenticationTicket.Properties);
-
-                            return Task.FromResult(0);
                         }
                     }
                 });

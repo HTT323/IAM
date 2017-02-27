@@ -13,8 +13,8 @@
     "WsFedId": 2,
     "TenantId": "nebula",
     "Caption": "Sign in with ADFS",
-    "MetadataAddress": "https://dev-947535.oktapreview.com/FederationMetadata/2007-06/exk8ts4xluZ1f46BO0h7/FederationMetadata.xml",
-    "Realm": "urn:iamadfs",
+    "MetadataAddress": "https://adfsserver.gatherforms.org/FederationMetadata/2007-06/FederationMetadata.xml",
+    "Realm": "https://auth.iam.dev:44300",
     "Audience": "https://auth.iam.dev:44300"
   }
 ]

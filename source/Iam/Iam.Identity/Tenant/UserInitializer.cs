@@ -39,7 +39,8 @@ namespace Iam.Identity.Tenant
             var admin = new IamUser
             {
                 Id = GuidCombGenerator.Generate().ToString(),
-                UserName = context.CacheKey
+                UserName = context.CacheKey,
+                Email = $"{context.CacheKey}@{context.CacheKey}.com"
             };
 
             manager.Create(admin, $"{ConvertToProper(context.CacheKey)}123#");
@@ -51,25 +52,14 @@ namespace Iam.Identity.Tenant
             var user = new IamUser
             {
                 Id = GuidCombGenerator.Generate().ToString(),
-                UserName = $"{context.CacheKey}-user"
+                UserName = $"{context.CacheKey}-user",
+                Email = $"{context.CacheKey}-user@{context.CacheKey}.com"
             };
 
             manager.Create(user, $"{ConvertToProper(context.CacheKey)}123#");
 
             manager.AddClaim(
                 user.Id,
-                new Claim(Constants.ClaimTypes.Role, "User"));
-
-            var userEmail = new IamUser
-            {
-                Id = GuidCombGenerator.Generate().ToString(),
-                UserName = $"{context.CacheKey}-user@{context.CacheKey}.com"
-            };
-
-            manager.Create(userEmail, $"{ConvertToProper(context.CacheKey)}123#");
-
-            manager.AddClaim(
-                userEmail.Id,
                 new Claim(Constants.ClaimTypes.Role, "User"));
         }
 

@@ -127,10 +127,10 @@ namespace Iam.Web.Middlewares
                     Name = "SharePoint Portal",
                     Enabled = true,
                     Realm = "urn:nebula:8af89396db32459c8cf2a819f1142c36",
-                    ReplyUrl = "https://www.sharepoint-nebula.dev/_trust/",
+                    ReplyUrl = "https://sp2013.gatherforms.org/_trust/",
                     PostLogoutRedirectUris = new List<string>
                     {
-                        "https://www.sharepoint-nebula.dev/"
+                        "https://sp2013.gatherforms.org/"
                     },
                     TokenType = "urn:oasis:names:tc:SAML:1.0:assertion",
                     DefaultClaimTypeMappingPrefix = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/",
