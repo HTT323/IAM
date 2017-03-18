@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,6 +49,8 @@ namespace Iam.Web.Services
 
         public async Task<Stream> Login(LoginViewModel model, SignInMessage message)
         {
+            Trace.TraceInformation("Login request message details: Tenant={0}, AcrValues={1}, ClientId={2}, ReturnUrl={3}", message.Tenant, message.AcrValues, message.ClientId, message.ReturnUrl);
+
             var client = await _clientStore.FindClientByIdAsync(message.ClientId);
 
             if (client == null && WsFedProtocolHelper.IsWsFedProtocolRequest(message.ReturnUrl))
@@ -63,6 +66,8 @@ namespace Iam.Web.Services
             
             string name;
             TenantMapping mapping;
+
+            Trace.TraceInformation("Login request for client: {0}", clientId);
             
             if (clientId == AppSettings.IamClientId)
             {

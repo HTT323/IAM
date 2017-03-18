@@ -1,6 +1,7 @@
 ﻿#region
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 
@@ -14,7 +15,9 @@ namespace Iam.Common.Helpers
         {
             var uri = new Uri(returnUrl);
 
-            return uri.AbsolutePath == "/wsfed";
+            Trace.TraceInformation("Check WsFed request URI absolute path: {0}", uri.AbsolutePath);
+
+            return uri.AbsolutePath == $"{AppSettings.IdsAppPath}/wsfed";
         }
 
         public static string GetRealm(string returnUrl)

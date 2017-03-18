@@ -35,6 +35,9 @@ namespace Iam.Common
 
         #region Identity Server
 
+        public static readonly string IdsAppPath =
+            ConfigurationManager.AppSettings["IdsAppPath"];
+
         public static readonly string IdsConnectionString =
             ConfigurationManager.AppSettings["IdsConnectionString"];
 

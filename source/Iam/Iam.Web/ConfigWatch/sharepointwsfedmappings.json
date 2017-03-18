@@ -1,0 +1,12 @@
+﻿[
+  {
+    "Name": "SharePoint Portal",
+    "Realm": "urn:nebula:8af89396db32459c8cf2a819f1142c36",
+    "ReplyUrl": "https://sp2013.gatherforms.org/_trust/",
+    "PostLogoutRedirectUris": [
+      "https://sp2013.gatherforms.org/"
+    ],
+    "TokenType": "urn:oasis:names:tc:SAML:1.0:assertion",
+    "DefaultClaimTypeMappingPrefix": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/"
+  }
+]

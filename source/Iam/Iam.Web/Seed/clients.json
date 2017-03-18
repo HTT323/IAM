@@ -76,6 +76,31 @@
   },
   {
     "Enabled": true,
+    "ClientId": "extranet",
+    "ClientName": "US Extranet",
+    "Flow": 1,
+    "RequireConsent": false,
+    "RedirectUris": [
+      "https://localhost:44311/"
+    ],
+    "PostLogoutRedirectUris": [
+      "https://localhost:44311/"
+    ],
+    "IdentityProviderRestrictions": [
+      "idsrv",
+      "wsfed1",
+      "wsfed2"
+    ],
+    "AllowedScopes": [
+      "openid",
+      "profile",
+      "email",
+      "role",
+      "extranet-scope"
+    ]
+  },
+  {
+    "Enabled": true,
     "ClientId": "nebula-service",
     "ClientName": "Nebula Service Account",
     "Flow": 3,

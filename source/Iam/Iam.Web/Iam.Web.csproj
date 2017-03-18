@@ -395,6 +395,9 @@
   <ItemGroup>
     <Content Include="Seed\wsfedprotocolmappings.json" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\PublishProfiles\File.pubxml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

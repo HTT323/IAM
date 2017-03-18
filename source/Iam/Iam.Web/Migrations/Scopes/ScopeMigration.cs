@@ -61,6 +61,18 @@ namespace Iam.Web.Migrations.Scopes
                     new ScopeClaim(Constants.ClaimTypes.Role)
                 }
             });
+
+            scopes.Add(new Scope
+            {
+                Name = "extranet-scope",
+                Type = ScopeType.Resource,
+                DisplayName = "Extranet API Scope",
+                Description = "Access to Extranet API",
+                Claims = new List<ScopeClaim>
+                {
+                    new ScopeClaim(Constants.ClaimTypes.Role)
+                }
+            });
         }
 
         [Conditional("DEBUG")]

@@ -59,7 +59,7 @@ namespace Iam.Web.Services
 
         public Task<TokenRequestValidationResult> ValidateTokenRequestAsync(ValidatedTokenRequest request)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new TokenRequestValidationResult {IsError = false});
         }
     }
 }

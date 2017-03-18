@@ -36,6 +36,7 @@ namespace Iam.Web.Middlewares
         private DateTime? _lastReconfigureDateUtc;
         private string _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch");
         private string _wsfed = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch", "wsfedmappings.json");
+        private string _spwsfed = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConfigWatch", "sharepointwsfedmappings.json");
 
         public ReconfigureIdsMiddleware(AppFunc next)
         {
@@ -119,30 +120,43 @@ namespace Iam.Web.Middlewares
 
         private IEnumerable<RelyingParty> GetWsFedRelyingParties()
         {
-            return new List<RelyingParty>
+            if (!File.Exists(_spwsfed))
+                return new List<RelyingParty>();
+
+            var json = File.ReadAllText(_spwsfed);
+
+            var spList = string.IsNullOrWhiteSpace(json)
+                ? new List<RelyingParty>()
+                : JsonConvert.DeserializeObject<IEnumerable<RelyingParty>>(json);
+
+            var rpList = new List<RelyingParty>();
+
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var rp in spList)
             {
-                // TODO: name claim from claims table!
-                new RelyingParty
+                var cm = new Dictionary<string, string>
                 {
-                    Name = "SharePoint Portal",
-                    Enabled = true,
-                    Realm = "urn:nebula:8af89396db32459c8cf2a819f1142c36",
-                    ReplyUrl = "https://sp2013.gatherforms.org/_trust/",
-                    PostLogoutRedirectUris = new List<string>
+                    {"sub", ClaimTypes.NameIdentifier},
+                    {"name", "http://schemas.org/claims/username"},
+                    {"email", ClaimTypes.Email},
+                    {"upn", ClaimTypes.Upn}
+                };
+
+                rpList.Add(
+                    new RelyingParty
                     {
-                        "https://sp2013.gatherforms.org/"
-                    },
-                    TokenType = "urn:oasis:names:tc:SAML:1.0:assertion",
-                    DefaultClaimTypeMappingPrefix = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/",
-                    ClaimMappings = new Dictionary<string, string>
-                    {
-                        {"sub", ClaimTypes.NameIdentifier},
-                        {"name", "http://schemas.org/claims/username"},
-                        {"email", ClaimTypes.Email},
-                        {"upn", ClaimTypes.Upn}
-                    }
-                }
-            };
+                        Name = rp.Name,
+                        Enabled = true,
+                        Realm = rp.Realm,
+                        ReplyUrl = rp.ReplyUrl,
+                        PostLogoutRedirectUris = rp.PostLogoutRedirectUris,
+                        TokenType = rp.TokenType,
+                        DefaultClaimTypeMappingPrefix = rp.DefaultClaimTypeMappingPrefix,
+                        ClaimMappings = cm
+                    });
+            }
+
+            return rpList;
         }
 
         private void EnsureConfigIds()
@@ -191,7 +205,7 @@ namespace Iam.Web.Middlewares
                             ValidAudience = wsFed.Audience
                         },
                     SignInAsAuthenticationType = signInAsType,
-                    CallbackPath = new PathString($"/callback/wsfed{wsFed.WsFedId}"),
+                    CallbackPath = new PathString($"{AppSettings.IdsAppPath}/callback/wsfed{wsFed.WsFedId}"),
                     MetadataAddress = wsFed.MetadataAddress,
                     Wtrealm = wsFed.Realm
                 };

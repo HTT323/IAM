@@ -52,7 +52,7 @@ namespace Demo.Nebula.Web
                             var nid =
                                 new ClaimsIdentity(
                                     n.AuthenticationTicket.Identity.AuthenticationType,
-                                    Constants.ClaimTypes.GivenName,
+                                    Constants.ClaimTypes.Email,
                                     Constants.ClaimTypes.Role);
 
                             var sub = n.AuthenticationTicket.Identity.Claims
