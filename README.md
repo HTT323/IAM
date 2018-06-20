@@ -1,3 +1,5 @@
+# June 20 2018 Update - Moving to Identity Server 4 and will be publishing the new source code soon. [Closing this version]
+
 [![Build status](https://ci.appveyor.com/api/projects/status/94d1q1it5e63t9t3?svg=true)](https://ci.appveyor.com/project/HTT323/iam)
 
 # Work in progress ...
